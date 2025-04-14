@@ -123,7 +123,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("PUT", "/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(201)

@@ -166,7 +166,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server.mock("POST", "/auth/factors/enroll")
+        server.mock("POST", "/auth/factors/enroll")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .match_body(r#"{"type":"totp","totp_user":"alan.turing@foo-corp.com","totp_issuer":"Foo Corp"}"#)
             .with_status(201)
@@ -211,7 +211,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/auth/factors/enroll")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .match_body(r#"{"type":"sms","phone_number":"73"}"#)

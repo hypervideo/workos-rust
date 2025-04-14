@@ -146,7 +146,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/health")
             .match_header(
                 "User-Agent",

@@ -90,7 +90,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server.mock(
+        server.mock(
             "GET",
             "/directory_groups/directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
         )
@@ -133,7 +133,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "GET",
                 "/directory_groups/directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",

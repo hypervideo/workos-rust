@@ -109,7 +109,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/directory_users")
             .match_query(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("order".to_string(), "desc".to_string()),
@@ -231,7 +231,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/directory_users")
             .match_query(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("order".to_string(), "desc".to_string()),

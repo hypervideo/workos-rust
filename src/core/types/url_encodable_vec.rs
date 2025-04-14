@@ -59,7 +59,7 @@ mod test {
 
         let mut server = mockito::Server::new_async().await;
 
-        let _mock = server
+        server
             .mock("GET", "/")
             .match_query(Matcher::UrlEncoded(
                 "items[]".to_string(),
@@ -93,7 +93,7 @@ mod test {
 
         let mut server = mockito::Server::new_async().await;
 
-        let _mock = server
+        server
             .mock("GET", "/")
             .match_query(Matcher::UrlEncoded(
                 "items[]".to_string(),

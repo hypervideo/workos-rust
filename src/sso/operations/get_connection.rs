@@ -88,7 +88,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/connections/conn_01E4ZCR3C56J083X43JQXF3JK5")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
@@ -136,7 +136,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/connections/conn_01E4ZCR3C56J083X43JQXF3JK5")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(401)

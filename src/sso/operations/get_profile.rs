@@ -77,7 +77,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/sso/profile")
             .match_header("Authorization", "Bearer 01DMEK0J53CVMC32CK5SE0KZ8Q")
             .with_status(200)

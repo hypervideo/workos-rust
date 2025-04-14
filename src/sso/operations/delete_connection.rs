@@ -95,7 +95,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("DELETE", "/connections/conn_01E2NPPCT7XQ2MVVYDHWGK1WN4")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(202)

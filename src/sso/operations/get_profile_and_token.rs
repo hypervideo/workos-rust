@@ -153,7 +153,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/sso/token")
             .match_body(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("client_id".to_string(), "client_1234".to_string()),
@@ -213,7 +213,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/sso/token")
             .with_status(400)
             .with_body(
@@ -246,7 +246,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/sso/token")
             .with_status(400)
             .with_body(
@@ -279,7 +279,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/sso/token")
             .with_status(400)
             .with_body(
