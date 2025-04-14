@@ -74,7 +74,7 @@ pub trait CreateOrganization {
 }
 
 #[async_trait]
-impl<'a> CreateOrganization for Organizations<'a> {
+impl CreateOrganization for Organizations<'_> {
     async fn create_organization(
         &self,
         params: &CreateOrganizationParams<'_>,

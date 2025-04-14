@@ -67,7 +67,7 @@ pub trait ListDirectoryGroups {
 }
 
 #[async_trait]
-impl<'a> ListDirectoryGroups for DirectorySync<'a> {
+impl ListDirectoryGroups for DirectorySync<'_> {
     async fn list_directory_groups(
         &self,
         params: &ListDirectoryGroupsParams<'_>,

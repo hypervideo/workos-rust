@@ -55,7 +55,7 @@ pub trait DeleteConnection {
 }
 
 #[async_trait]
-impl<'a> DeleteConnection for Sso<'a> {
+impl DeleteConnection for Sso<'_> {
     async fn delete_connection(
         &self,
         params: &DeleteConnectionParams<'_>,

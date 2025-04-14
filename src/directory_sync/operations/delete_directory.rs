@@ -55,7 +55,7 @@ pub trait DeleteDirectory {
 }
 
 #[async_trait]
-impl<'a> DeleteDirectory for DirectorySync<'a> {
+impl DeleteDirectory for DirectorySync<'_> {
     async fn delete_directory(
         &self,
         params: &DeleteDirectoryParams<'_>,

@@ -48,7 +48,7 @@ pub trait SendPasswordlessSession {
 }
 
 #[async_trait]
-impl<'a> SendPasswordlessSession for Passwordless<'a> {
+impl SendPasswordlessSession for Passwordless<'_> {
     async fn send_passwordless_session(
         &self,
         params: &SendPasswordlessSessionParams<'_>,

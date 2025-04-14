@@ -42,7 +42,7 @@ pub trait GetDirectory {
 }
 
 #[async_trait]
-impl<'a> GetDirectory for DirectorySync<'a> {
+impl GetDirectory for DirectorySync<'_> {
     async fn get_directory(&self, id: &DirectoryId) -> WorkOsResult<Directory, GetDirectoryError> {
         let url = self
             .workos

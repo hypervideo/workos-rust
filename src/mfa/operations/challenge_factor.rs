@@ -75,7 +75,7 @@ pub trait ChallengeFactor {
 }
 
 #[async_trait]
-impl<'a> ChallengeFactor for Mfa<'a> {
+impl ChallengeFactor for Mfa<'_> {
     async fn challenge_factor(
         &self,
         params: &ChallengeFactorParams<'_>,

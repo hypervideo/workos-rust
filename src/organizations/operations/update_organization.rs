@@ -79,7 +79,7 @@ pub trait UpdateOrganization {
 }
 
 #[async_trait]
-impl<'a> UpdateOrganization for Organizations<'a> {
+impl UpdateOrganization for Organizations<'_> {
     async fn update_organization(
         &self,
         params: &UpdateOrganizationParams<'_>,

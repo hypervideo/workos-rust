@@ -37,7 +37,7 @@ pub trait GetProfile {
 }
 
 #[async_trait]
-impl<'a> GetProfile for Sso<'a> {
+impl GetProfile for Sso<'_> {
     async fn get_profile(
         &self,
         access_token: &AccessToken,

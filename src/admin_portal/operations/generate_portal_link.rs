@@ -94,7 +94,7 @@ pub trait GeneratePortalLink {
 }
 
 #[async_trait]
-impl<'a> GeneratePortalLink for AdminPortal<'a> {
+impl GeneratePortalLink for AdminPortal<'_> {
     async fn generate_portal_link(
         &self,
         params: &GeneratePortalLinkParams<'_>,

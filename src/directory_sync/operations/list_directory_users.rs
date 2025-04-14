@@ -67,7 +67,7 @@ pub trait ListDirectoryUsers {
 }
 
 #[async_trait]
-impl<'a> ListDirectoryUsers for DirectorySync<'a> {
+impl ListDirectoryUsers for DirectorySync<'_> {
     async fn list_directory_users(
         &self,
         params: &ListDirectoryUsersParams<'_>,

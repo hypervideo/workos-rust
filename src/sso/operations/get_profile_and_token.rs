@@ -102,7 +102,7 @@ pub trait GetProfileAndToken {
 }
 
 #[async_trait]
-impl<'a> GetProfileAndToken for Sso<'a> {
+impl GetProfileAndToken for Sso<'_> {
     async fn get_profile_and_token(
         &self,
         params: &GetProfileAndTokenParams<'_>,

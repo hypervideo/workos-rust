@@ -85,7 +85,7 @@ impl<'a> WorkOsBuilder<'a> {
     }
 
     /// Sets the base URL of the WorkOS API that the client should point to.
-    pub fn base_url(mut self, base_url: &'a str) -> Result<WorkOsBuilder, ParseError> {
+    pub fn base_url(mut self, base_url: &'a str) -> Result<Self, ParseError> {
         self.base_url = Url::parse(base_url)?;
         Ok(self)
     }

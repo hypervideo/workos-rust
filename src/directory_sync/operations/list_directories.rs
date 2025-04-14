@@ -59,7 +59,7 @@ pub trait ListDirectories {
 }
 
 #[async_trait]
-impl<'a> ListDirectories for DirectorySync<'a> {
+impl ListDirectories for DirectorySync<'_> {
     async fn list_directories(
         &self,
         params: &ListDirectoriesParams<'_>,

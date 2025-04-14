@@ -59,7 +59,7 @@ pub enum AuthenticationFactorType {
         /// The `otpauth://` URI that is encoded in the `qr_code`.
         uri: String,
     },
-    ///
+    /// One-time password via SMS message.
     Sms {
         /// The phone number the factor was enrolled with.
         phone_number: String,

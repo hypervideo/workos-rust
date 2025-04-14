@@ -68,7 +68,7 @@ mod test {
         let client = reqwest::Client::new();
 
         let response = client
-            .get(&mockito::server_url())
+            .get(mockito::server_url())
             .query(&List {
                 items: UrlEncodableVec(vec!["one", "two", "three"]),
             })
@@ -98,7 +98,7 @@ mod test {
         let client = reqwest::Client::new();
 
         let response = client
-            .get(&mockito::server_url())
+            .get(mockito::server_url())
             .query(&List {
                 items: Some(UrlEncodableVec(vec!["one", "two", "three"])),
             })

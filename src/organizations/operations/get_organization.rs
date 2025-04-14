@@ -45,7 +45,7 @@ pub trait GetOrganization {
 }
 
 #[async_trait]
-impl<'a> GetOrganization for Organizations<'a> {
+impl GetOrganization for Organizations<'_> {
     async fn get_organization(
         &self,
         id: &OrganizationId,

@@ -122,7 +122,7 @@ pub trait EnrollFactor {
 }
 
 #[async_trait]
-impl<'a> EnrollFactor for Mfa<'a> {
+impl EnrollFactor for Mfa<'_> {
     async fn enroll_factor(
         &self,
         params: &EnrollFactorParams<'_>,

@@ -47,7 +47,7 @@ pub trait GetDirectoryUser {
 }
 
 #[async_trait]
-impl<'a> GetDirectoryUser for DirectorySync<'a> {
+impl GetDirectoryUser for DirectorySync<'_> {
     async fn get_directory_user(
         &self,
         id: &DirectoryUserId,

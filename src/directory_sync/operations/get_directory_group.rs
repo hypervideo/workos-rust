@@ -47,7 +47,7 @@ pub trait GetDirectoryGroup {
 }
 
 #[async_trait]
-impl<'a> GetDirectoryGroup for DirectorySync<'a> {
+impl GetDirectoryGroup for DirectorySync<'_> {
     async fn get_directory_group(
         &self,
         id: &DirectoryGroupId,

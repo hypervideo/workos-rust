@@ -13,7 +13,7 @@ pub struct PaginationParams<'a> {
     pub before: Option<&'a str>,
 }
 
-impl<'a> Default for PaginationParams<'a> {
+impl Default for PaginationParams<'_> {
     fn default() -> Self {
         Self {
             order: &PaginationOrder::DEFAULT,

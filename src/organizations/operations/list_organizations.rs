@@ -73,7 +73,7 @@ pub trait ListOrganizations {
 }
 
 #[async_trait]
-impl<'a> ListOrganizations for Organizations<'a> {
+impl ListOrganizations for Organizations<'_> {
     async fn list_organizations(
         &self,
         params: &ListOrganizationsParams<'_>,

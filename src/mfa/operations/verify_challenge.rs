@@ -67,7 +67,7 @@ pub trait VerifyChallenge {
 }
 
 #[async_trait]
-impl<'a> VerifyChallenge for Mfa<'a> {
+impl VerifyChallenge for Mfa<'_> {
     async fn verify_challenge(
         &self,
         params: &VerifyChallengeParams<'_>,

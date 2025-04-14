@@ -55,7 +55,7 @@ pub trait DeleteOrganization {
 }
 
 #[async_trait]
-impl<'a> DeleteOrganization for Organizations<'a> {
+impl DeleteOrganization for Organizations<'_> {
     async fn delete_organization(
         &self,
         params: &DeleteOrganizationParams<'_>,

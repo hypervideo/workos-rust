@@ -75,7 +75,7 @@ pub trait CreatePasswordlessSession {
 }
 
 #[async_trait]
-impl<'a> CreatePasswordlessSession for Passwordless<'a> {
+impl CreatePasswordlessSession for Passwordless<'_> {
     async fn create_passwordless_session(
         &self,
         params: &CreatePasswordlessSessionParams<'_>,

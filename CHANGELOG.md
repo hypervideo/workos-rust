@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated project to new owner and repository
 
+### Fixed
+
+- Fixed Clippy warnings
+
 ## [0.2.0] - 2022-07-14
 
 ### Added

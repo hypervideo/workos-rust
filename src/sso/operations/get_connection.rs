@@ -45,7 +45,7 @@ pub trait GetConnection {
 }
 
 #[async_trait]
-impl<'a> GetConnection for Sso<'a> {
+impl GetConnection for Sso<'_> {
     async fn get_connection(
         &self,
         id: &ConnectionId,
