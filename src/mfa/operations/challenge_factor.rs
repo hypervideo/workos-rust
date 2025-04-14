@@ -102,7 +102,6 @@ impl ChallengeFactor for Mfa<'_> {
 
 #[cfg(test)]
 mod test {
-    use mockito::{self, mock};
     use serde_json::json;
     use tokio;
 
@@ -113,30 +112,34 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_challenge_factor_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock(
-            "POST",
-            "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
-        )
-        .match_header("Authorization", "Bearer sk_example_123456789")
-        .match_body("{}")
-        .with_status(201)
-        .with_body(
-            json!({
-              "object": "authentication_challenge",
-              "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
-              "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
-              "expires_at": "2022-02-15T15:36:53.279Z",
-              "created_at": "2022-02-15T15:26:53.274Z",
-              "updated_at": "2022-02-15T15:26:53.274Z"
-            })
-            .to_string(),
-        )
-        .create();
+        let _mock = server
+            .mock(
+                "POST",
+                "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
+            )
+            .match_header("Authorization", "Bearer sk_example_123456789")
+            .match_body("{}")
+            .with_status(201)
+            .with_body(
+                json!({
+                  "object": "authentication_challenge",
+                  "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
+                  "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
+                  "expires_at": "2022-02-15T15:36:53.279Z",
+                  "created_at": "2022-02-15T15:26:53.274Z",
+                  "updated_at": "2022-02-15T15:26:53.274Z"
+                })
+                .to_string(),
+            )
+            .create_async()
+            .await;
 
         let challenge = workos
             .mfa()
@@ -157,30 +160,34 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_challenge_factor_endpoint_with_an_sms_template() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock(
-            "POST",
-            "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
-        )
-        .match_header("Authorization", "Bearer sk_example_123456789")
-        .match_body(r#"{"sms_template":"Here's your one-time code: {{code}}"}"#)
-        .with_status(201)
-        .with_body(
-            json!({
-              "object": "authentication_challenge",
-              "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
-              "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
-              "expires_at": "2022-02-15T15:36:53.279Z",
-              "created_at": "2022-02-15T15:26:53.274Z",
-              "updated_at": "2022-02-15T15:26:53.274Z"
-            })
-            .to_string(),
-        )
-        .create();
+        let _mock = server
+            .mock(
+                "POST",
+                "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
+            )
+            .match_header("Authorization", "Bearer sk_example_123456789")
+            .match_body(r#"{"sms_template":"Here's your one-time code: {{code}}"}"#)
+            .with_status(201)
+            .with_body(
+                json!({
+                  "object": "authentication_challenge",
+                  "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
+                  "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
+                  "expires_at": "2022-02-15T15:36:53.279Z",
+                  "created_at": "2022-02-15T15:26:53.274Z",
+                  "updated_at": "2022-02-15T15:26:53.274Z"
+                })
+                .to_string(),
+            )
+            .create_async()
+            .await;
 
         let challenge = workos
             .mfa()

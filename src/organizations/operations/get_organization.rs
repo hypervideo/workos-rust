@@ -71,7 +71,6 @@ impl GetOrganization for Organizations<'_> {
 
 #[cfg(test)]
 mod test {
-    use mockito::{self, mock};
     use serde_json::json;
     use tokio;
 
@@ -81,12 +80,15 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_get_organization_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("GET", "/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT")
+        let _mock = server
+            .mock("GET", "/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
@@ -112,7 +114,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let organization = workos
             .organizations()

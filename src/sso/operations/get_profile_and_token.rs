@@ -135,7 +135,7 @@ impl GetProfileAndToken for Sso<'_> {
 #[cfg(test)]
 mod test {
     use matches::assert_matches;
-    use mockito::{self, mock, Matcher};
+    use mockito::Matcher;
     use serde_json::json;
     use tokio;
 
@@ -146,12 +146,15 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_token_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/sso/token")
+        let _mock = server
+            .mock("POST", "/sso/token")
             .match_body(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("client_id".to_string(), "client_1234".to_string()),
                 Matcher::UrlEncoded(
@@ -179,7 +182,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let response = workos
             .sso()
@@ -202,12 +206,15 @@ mod test {
 
     #[tokio::test]
     async fn it_returns_an_unauthorized_error_with_an_invalid_client() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/sso/token")
+        let _mock = server
+            .mock("POST", "/sso/token")
             .with_status(400)
             .with_body(
                 json!({
@@ -216,7 +223,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let result = workos
             .sso()
@@ -231,12 +239,15 @@ mod test {
 
     #[tokio::test]
     async fn it_returns_an_unauthorized_error_with_an_unauthorized_client() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/sso/token")
+        let _mock = server
+            .mock("POST", "/sso/token")
             .with_status(400)
             .with_body(
                 json!({
@@ -245,7 +256,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let result = workos
             .sso()
@@ -260,12 +272,15 @@ mod test {
 
     #[tokio::test]
     async fn it_returns_an_error_when_the_authorization_code_is_invalid() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("POST", "/sso/token")
+        let _mock = server
+            .mock("POST", "/sso/token")
             .with_status(400)
             .with_body(
                 json!({
@@ -274,7 +289,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let result = workos
             .sso()

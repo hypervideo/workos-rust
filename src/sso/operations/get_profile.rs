@@ -60,7 +60,6 @@ impl GetProfile for Sso<'_> {
 
 #[cfg(test)]
 mod test {
-    use mockito::{self, mock};
     use serde_json::json;
     use tokio;
 
@@ -71,12 +70,15 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_get_profile_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("GET", "/sso/profile")
+        let _mock = server
+            .mock("GET", "/sso/profile")
             .match_header("Authorization", "Bearer 01DMEK0J53CVMC32CK5SE0KZ8Q")
             .with_status(200)
             .with_body(
@@ -93,7 +95,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let profile = workos
             .sso()
