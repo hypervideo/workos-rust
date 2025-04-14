@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated project to new owner and repository
 
+### Removed
+
+- Removed unnecessary dependencies from TLS feature flags
+
 ### Fixed
 
 - Fixed Clippy warnings
