@@ -72,7 +72,6 @@ impl GetConnection for Sso<'_> {
 #[cfg(test)]
 mod test {
     use matches::assert_matches;
-    use mockito::{self, mock};
     use serde_json::json;
     use tokio;
 
@@ -82,12 +81,15 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_get_connection_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("GET", "/connections/conn_01E4ZCR3C56J083X43JQXF3JK5")
+        let _mock = server
+            .mock("GET", "/connections/conn_01E4ZCR3C56J083X43JQXF3JK5")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
@@ -110,7 +112,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let connection = workos
             .sso()
@@ -126,12 +129,15 @@ mod test {
 
     #[tokio::test]
     async fn it_returns_an_error_when_the_get_connection_endpoint_returns_unauthorized() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("GET", "/connections/conn_01E4ZCR3C56J083X43JQXF3JK5")
+        let _mock = server
+            .mock("GET", "/connections/conn_01E4ZCR3C56J083X43JQXF3JK5")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(401)
             .with_body(
@@ -140,7 +146,8 @@ mod test {
                 })
                 .to_string(),
             )
-            .create();
+            .create_async()
+            .await;
 
         let result = workos
             .sso()

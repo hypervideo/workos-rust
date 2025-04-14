@@ -43,7 +43,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use mockito::{self, mock, Matcher};
+    use mockito::Matcher;
     use reqwest::StatusCode;
     use serde::Serialize;
 
@@ -57,18 +57,22 @@ mod test {
             pub items: UrlEncodableVec<&'a str>,
         }
 
-        let _mock = mock("GET", "/")
+        let mut server = mockito::Server::new_async().await;
+
+        let _mock = server
+            .mock("GET", "/")
             .match_query(Matcher::UrlEncoded(
                 "items[]".to_string(),
                 "one,two,three".to_string(),
             ))
             .with_status(200)
-            .create();
+            .create_async()
+            .await;
 
         let client = reqwest::Client::new();
 
         let response = client
-            .get(mockito::server_url())
+            .get(server.url())
             .query(&List {
                 items: UrlEncodableVec(vec!["one", "two", "three"]),
             })
@@ -87,18 +91,22 @@ mod test {
             pub items: Option<UrlEncodableVec<&'a str>>,
         }
 
-        let _mock = mock("GET", "/")
+        let mut server = mockito::Server::new_async().await;
+
+        let _mock = server
+            .mock("GET", "/")
             .match_query(Matcher::UrlEncoded(
                 "items[]".to_string(),
                 "one,two,three".to_string(),
             ))
             .with_status(200)
-            .create();
+            .create_async()
+            .await;
 
         let client = reqwest::Client::new();
 
         let response = client
-            .get(mockito::server_url())
+            .get(server.url())
             .query(&List {
                 items: Some(UrlEncodableVec(vec!["one", "two", "three"])),
             })

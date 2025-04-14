@@ -74,7 +74,6 @@ impl GetDirectoryGroup for DirectorySync<'_> {
 #[cfg(test)]
 mod test {
     use matches::assert_matches;
-    use mockito::{self, mock};
     use serde_json::json;
     use tokio;
 
@@ -84,12 +83,14 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_get_directory_group_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock(
+        let _mock = server.mock(
             "GET",
             "/directory_groups/directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
         )
@@ -107,7 +108,7 @@ mod test {
             })
             .to_string(),
         )
-        .create();
+        .create_async().await;
 
         let directory = workos
             .directory_sync()
@@ -125,24 +126,28 @@ mod test {
 
     #[tokio::test]
     async fn it_returns_an_error_when_the_get_directory_group_endpoint_returns_unauthorized() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock(
-            "GET",
-            "/directory_groups/directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
-        )
-        .match_header("Authorization", "Bearer sk_example_123456789")
-        .with_status(401)
-        .with_body(
-            json!({
-                "message": "Unauthorized"
-            })
-            .to_string(),
-        )
-        .create();
+        let _mock = server
+            .mock(
+                "GET",
+                "/directory_groups/directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT",
+            )
+            .match_header("Authorization", "Bearer sk_example_123456789")
+            .with_status(401)
+            .with_body(
+                json!({
+                    "message": "Unauthorized"
+                })
+                .to_string(),
+            )
+            .create_async()
+            .await;
 
         let result = workos
             .directory_sync()

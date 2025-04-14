@@ -78,7 +78,6 @@ impl DeleteOrganization for Organizations<'_> {
 
 #[cfg(test)]
 mod test {
-    use mockito::{self, mock};
     use tokio;
 
     use super::*;
@@ -87,15 +86,19 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_delete_organization_endpoint() {
+        let mut server = mockito::Server::new_async().await;
+
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&mockito::server_url())
+            .base_url(&server.url())
             .unwrap()
             .build();
 
-        let _mock = mock("DELETE", "/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT")
+        let _mock = server
+            .mock("DELETE", "/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(202)
-            .create();
+            .create_async()
+            .await;
 
         let result = workos
             .organizations()
