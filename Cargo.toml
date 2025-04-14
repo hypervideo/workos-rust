@@ -7,27 +7,25 @@ authors = ["Hyper <info@hyper.video>", "WorkOS"]
 license = "MIT"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [features]
 default = ["rustls-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 
 [dependencies]
-async-trait = "0.1"
-chrono = { version = "0.4", features = ["serde"] }
-querystring = "1.1"
-reqwest = { version = "0.11", default-features = false, features = ["json"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "1.0"
-url = "2.2"
+async-trait = "0.1.88"
+chrono = { version = "0.4.40", features = ["serde"] }
+querystring = "1.1.0"
+reqwest = { version = "0.11.27", features = ["json"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+thiserror = "1.0.69"
+url = "2.5.4"
 
 [dev-dependencies]
-matches = "0.1"
-mockito = "0.31"
-tokio = { version = "1.0", default-features = false, features = [
+matches = "0.1.10"
+mockito = "0.31.1"
+tokio = { version = "1.44.2", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
