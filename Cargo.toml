@@ -1,10 +1,9 @@
 [package]
 name = "workos"
 version = "0.2.0"
-description = "[Experimental] Official Rust SDK for interacting with the WorkOS API."
-repository = "https://github.com/workos/workos-rust"
-documentation = "https://docs.rs/workos/"
-authors = ["WorkOS"]
+description = "Rust SDK for interacting with the WorkOS API."
+repository = "https://github.com/hypervideo/workos-rust"
+authors = ["Hyper <info@hyper.video>", "WorkOS"]
 license = "MIT"
 edition = "2021"
 
@@ -31,4 +30,7 @@ url = "2.2"
 [dev-dependencies]
 matches = "0.1"
 mockito = "0.31"
-tokio = { version = "1.0", default-features = false, features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.0", default-features = false, features = [
+    "macros",
+    "rt-multi-thread",
+] }

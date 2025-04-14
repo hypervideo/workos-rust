@@ -9,20 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `primary_email` getter to `DirectoryUser`s ([#86](https://github.com/workos/workos-rust/pull/86))
+- Added `primary_email` getter to `DirectoryUser`s
+
+### Changed
+
+- Updated project to new owner and repository
 
 ## [0.2.0] - 2022-07-14
 
 ### Added
 
-- Added `organization_id` to `DirectoryUser`s and `DirectoryGroup`s ([#84](https://github.com/workos/workos-rust/pull/84))
+- Added `organization_id` to `DirectoryUser`s and `DirectoryGroup`s
 
 ## [0.1.1] - 2022-07-11
 
 ### Changed
 
-- Updated the endpoints used for `ChallengeFactor` and `VerifyChallenge` operations ([#81](https://github.com/workos/workos-rust/pull/81))
-- Changed project status to "experimental" ([#82](https://github.com/workos/workos-rust/pull/82))
+- Updated the endpoints used for `ChallengeFactor` and `VerifyChallenge` operations
+- Changed project status to "experimental"
 
 ## [0.1.0] - 2022-07-01
 
@@ -30,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[unreleased]: https://github.com/workos/workos-rust/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/workos/workos-rust/compare/v0.1.1...v0.2.0
-[0.1.1]: https://github.com/workos/workos-rust/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/workos/workos-rust/releases/tag/66a4c78...v0.1.0
+[unreleased]: https://github.com/hypervideo/workos-rust/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/hypervideo/workos-rust/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/hypervideo/workos-rust/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/hypervideo/workos-rust/compare/66a4c78...v0.1.0
