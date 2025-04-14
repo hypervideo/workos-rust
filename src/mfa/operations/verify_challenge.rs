@@ -111,7 +111,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "POST",
                 "/auth/challenges/auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5/verify",

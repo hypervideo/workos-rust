@@ -119,7 +119,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "POST",
                 "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",
@@ -167,7 +167,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "POST",
                 "/auth/factors/auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ/challenge",

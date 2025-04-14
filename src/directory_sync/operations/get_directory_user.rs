@@ -90,7 +90,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "GET",
                 "/directory_users/directory_user_01E1JG7J09H96KYP8HM9B0G5SJ",
@@ -153,7 +153,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/directory_users/")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(401)

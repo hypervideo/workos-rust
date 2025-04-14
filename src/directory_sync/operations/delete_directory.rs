@@ -95,7 +95,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "DELETE",
                 "/directories/directory_01ECAZ4NV9QMV47GW873HDCX74",

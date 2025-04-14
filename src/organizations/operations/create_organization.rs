@@ -115,7 +115,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/organizations")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(201)

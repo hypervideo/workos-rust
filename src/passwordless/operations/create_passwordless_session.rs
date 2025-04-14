@@ -116,7 +116,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("POST", "/passwordless/sessions")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .match_body(r#"{"type":"MagicLink","email":"marcelina@foo-corp.com"}"#)

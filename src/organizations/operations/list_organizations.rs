@@ -115,7 +115,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/organizations")
             .match_query(Matcher::UrlEncoded("order".to_string(), "desc".to_string()))
             .match_header("Authorization", "Bearer sk_example_123456789")
@@ -175,7 +175,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock("GET", "/organizations")
             .match_query(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("order".to_string(), "desc".to_string()),

@@ -90,7 +90,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server
+        server
             .mock(
                 "POST",
                 "/passwordless/sessions/passwordless_session_01EG1BHJMVYMFBQYZTTC0N73CR/send",

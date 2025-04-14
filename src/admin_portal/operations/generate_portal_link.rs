@@ -135,7 +135,7 @@ mod test {
             .unwrap()
             .build();
 
-        let _mock = server.mock("POST", "/portal/generate_link")
+        server.mock("POST", "/portal/generate_link")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .match_body(r#"{"organization":"org_01EHZNVPK3SFK441A1RGBFSHRT","intent":"sso"}"#)
             .with_status(201)
