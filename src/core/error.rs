@@ -15,6 +15,10 @@ pub enum WorkOsError<E> {
     #[error("URL parse error")]
     UrlParseError(#[from] url::ParseError),
 
+    /// An error occurred while parsing an IP address.
+    #[error("IP addres parse error")]
+    IpAddrParseError(#[from] std::net::AddrParseError),
+
     /// An unhandled error occurred with the API request.
     #[error("request error")]
     RequestError(#[from] reqwest::Error),
