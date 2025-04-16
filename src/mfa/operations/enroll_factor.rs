@@ -132,7 +132,7 @@ impl EnrollFactor for Mfa<'_> {
             .workos
             .client()
             .post(url)
-            .bearer_auth(self.workos.key())
+            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
             .json(&params)
             .send()
             .await?
@@ -161,7 +161,8 @@ mod test {
     async fn it_calls_the_enroll_factor_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -206,7 +207,8 @@ mod test {
     async fn it_returns_an_error_when_the_phone_number_is_invalid() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

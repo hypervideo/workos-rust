@@ -12,27 +12,32 @@ use crate::ApiKey;
 /// The WorkOS client.
 pub struct WorkOs {
     base_url: Url,
-    key: ApiKey,
+    key: Option<ApiKey>,
     client: reqwest::Client,
 }
 
 impl WorkOs {
     /// Returns a new instance of the WorkOS client using the provided API key.
     pub fn new(key: &ApiKey) -> Self {
-        WorkOsBuilder::new(key).build()
+        WorkOsBuilder::new().key(key).build()
+    }
+
+    /// Returns a new instance of the WorkOS client without API key.
+    pub fn new_without_key() -> Self {
+        WorkOsBuilder::new().build()
     }
 
     /// Returns a [`WorkOsBuilder`] that may be used to construct a WorkOS client.
-    pub fn builder(key: &ApiKey) -> WorkOsBuilder {
-        WorkOsBuilder::new(key)
+    pub fn builder<'a>() -> WorkOsBuilder<'a> {
+        WorkOsBuilder::new()
     }
 
     pub(crate) fn base_url(&self) -> &Url {
         &self.base_url
     }
 
-    pub(crate) fn key(&self) -> &ApiKey {
-        &self.key
+    pub(crate) fn key(&self) -> Option<&ApiKey> {
+        self.key.as_ref()
     }
 
     pub(crate) fn client(&self) -> &reqwest::Client {
@@ -78,15 +83,15 @@ impl WorkOs {
 /// A builder for a WorkOS client.
 pub struct WorkOsBuilder<'a> {
     base_url: Url,
-    key: &'a ApiKey,
+    key: Option<&'a ApiKey>,
 }
 
 impl<'a> WorkOsBuilder<'a> {
-    /// Returns a new [`WorkOsBuilder`] using the provided API key.
-    pub fn new(key: &'a ApiKey) -> Self {
+    /// Returns a new [`WorkOsBuilder`].
+    pub fn new() -> Self {
         Self {
             base_url: Url::parse("https://api.workos.com").unwrap(),
-            key,
+            key: None,
         }
     }
 
@@ -98,7 +103,7 @@ impl<'a> WorkOsBuilder<'a> {
 
     /// Sets the API key that the client will use.
     pub fn key(mut self, key: &'a ApiKey) -> Self {
-        self.key = key;
+        self.key = Some(key);
         self
     }
 
@@ -111,9 +116,15 @@ impl<'a> WorkOsBuilder<'a> {
 
         WorkOs {
             base_url: self.base_url,
-            key: self.key.to_owned(),
+            key: self.key.map(ToOwned::to_owned),
             client,
         }
+    }
+}
+
+impl Default for WorkOsBuilder<'_> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -123,7 +134,7 @@ mod test {
 
     #[test]
     fn it_supports_setting_the_base_url_through_the_builder() {
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
             .base_url("https://auth.your-app.com")
             .unwrap()
             .build();
@@ -136,21 +147,18 @@ mod test {
 
     #[test]
     fn it_supports_setting_the_api_key_through_the_builder() {
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
             .key(&ApiKey::from("sk_another_api_key"))
             .build();
 
-        assert_eq!(workos.key(), &ApiKey::from("sk_another_api_key"))
+        assert_eq!(workos.key(), Some(&ApiKey::from("sk_another_api_key")))
     }
 
     #[tokio::test]
     async fn it_sets_the_user_agent_header_on_the_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&server.url())
-            .unwrap()
-            .build();
+        let workos = WorkOs::builder().base_url(&server.url()).unwrap().build();
 
         server
             .mock("GET", "/health")

@@ -112,7 +112,14 @@ impl GetProfileAndToken for Sso<'_> {
         let url = self.workos.base_url().join("/sso/token")?;
         let params = [
             ("client_id", &client_id.to_string()),
-            ("client_secret", &self.workos.key().to_string()),
+            (
+                "client_secret",
+                &self
+                    .workos
+                    .key()
+                    .ok_or(WorkOsError::ApiKeyRequired)?
+                    .to_string(),
+            ),
             ("grant_type", &"authorization_code".to_string()),
             ("code", &code.to_string()),
         ];
@@ -148,7 +155,8 @@ mod test {
     async fn it_calls_the_token_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -208,7 +216,8 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_invalid_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -241,7 +250,8 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_unauthorized_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -274,7 +284,8 @@ mod test {
     async fn it_returns_an_error_when_the_authorization_code_is_invalid() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
