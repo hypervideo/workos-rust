@@ -1,7 +1,9 @@
 use std::fmt::Display;
 
+use serde::Serialize;
+
 /// An API key to authenticate with the WorkOS API.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub struct ApiKey(String);
 
 impl Display for ApiKey {

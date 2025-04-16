@@ -58,7 +58,7 @@ impl GetOrganization for Organizations<'_> {
             .workos
             .client()
             .get(url)
-            .bearer_auth(self.workos.key())
+            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
@@ -82,7 +82,8 @@ mod test {
     async fn it_calls_the_get_organization_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

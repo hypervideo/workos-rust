@@ -7,17 +7,14 @@ use thiserror::Error;
 
 use crate::organizations::OrganizationId;
 use crate::sso::{AccessToken, ClientId};
-use crate::user_management::{ClientSecret, Impersonator, RefreshToken, User, UserManagement};
-use crate::{WorkOsError, WorkOsResult};
+use crate::user_management::{Impersonator, RefreshToken, User, UserManagement};
+use crate::{ApiKey, WorkOsError, WorkOsResult};
 
 /// The parameters for [`AuthenticateWithRefreshToken`].
 #[derive(Debug, Serialize)]
 pub struct AuthenticateWithRefreshTokenParams<'a> {
     /// Identifies the application making the request to the WorkOS server.
     pub client_id: &'a ClientId,
-
-    /// Authenticates the application making the request to the WorkOS server.
-    pub client_secret: &'a ClientSecret,
 
     /// The refresh_token received from a successful authentication response.
     pub refresh_token: &'a RefreshToken,
@@ -34,6 +31,7 @@ pub struct AuthenticateWithRefreshTokenParams<'a> {
 
 #[derive(Serialize)]
 struct AuthenticateWithRefreshTokenBody<'a> {
+    client_secret: &'a ApiKey,
     grant_type: &'a str,
 
     #[serde(flatten)]
@@ -129,7 +127,6 @@ pub trait AuthenticateWithRefreshToken {
     ///     .user_management()
     ///     .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
     ///         client_id: &ClientId::from("client_123456789"),
-    ///         client_secret: &ClientSecret::from("sk_example_123456789"),
     ///         refresh_token: &RefreshToken::from("Xw0NsCVXMBf7svAoIoKBmkpEK"),
     ///         organization_id: None,
     ///         ip_address: Some(&IpAddr::from_str("192.0.2.1")?),
@@ -157,6 +154,7 @@ impl AuthenticateWithRefreshToken for UserManagement<'_> {
             .join("/user_management/authenticate")?;
 
         let body = AuthenticateWithRefreshTokenBody {
+            client_secret: self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?,
             grant_type: "refresh_token",
             params,
         };
@@ -193,7 +191,8 @@ mod test {
     async fn it_calls_the_token_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -239,7 +238,6 @@ mod test {
             .user_management()
             .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: &ClientSecret::from("sk_example_123456789"),
                 refresh_token: &RefreshToken::from("abc123"),
                 organization_id: None,
                 ip_address: None,
@@ -266,7 +264,8 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_invalid_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -288,7 +287,6 @@ mod test {
             .user_management()
             .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: &ClientSecret::from("sk_example_123456789"),
                 refresh_token: &RefreshToken::from("abc123"),
                 organization_id: None,
                 ip_address: None,
@@ -303,7 +301,8 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_unauthorized_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -325,7 +324,6 @@ mod test {
             .user_management()
             .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: &ClientSecret::from("sk_example_123456789"),
                 refresh_token: &RefreshToken::from("abc123"),
                 organization_id: None,
                 ip_address: None,
@@ -340,7 +338,8 @@ mod test {
     async fn it_returns_an_error_when_the_authorization_code_is_invalid() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -362,7 +361,6 @@ mod test {
             .user_management()
             .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: &ClientSecret::from("sk_example_123456789"),
                 refresh_token: &RefreshToken::from("abc123"),
                 organization_id: None,
                 ip_address: None,

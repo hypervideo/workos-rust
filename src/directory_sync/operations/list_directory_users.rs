@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::Serialize;
 
 use crate::directory_sync::{DirectoryGroupId, DirectoryId, DirectorySync, DirectoryUser};
-use crate::{PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
+use crate::{PaginatedList, PaginationParams, ResponseExt, WorkOsError, WorkOsResult};
 
 /// A filter for [`ListDirectoryUsers`].
 #[derive(Debug, Serialize)]
@@ -78,7 +78,7 @@ impl ListDirectoryUsers for DirectorySync<'_> {
             .client()
             .get(url)
             .query(&params)
-            .bearer_auth(self.workos.key())
+            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
@@ -104,7 +104,8 @@ mod test {
     async fn it_calls_the_list_directory_users_endpoint_with_a_directory_id() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -226,7 +227,8 @@ mod test {
     async fn it_calls_the_list_directory_users_endpoint_with_a_directory_group_id() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

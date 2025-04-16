@@ -3,7 +3,7 @@ use serde::Serialize;
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationChallenge, AuthenticationFactorId, Mfa};
-use crate::{ResponseExt, WorkOsResult};
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The type of authentication factor to challenge.
 #[derive(Debug, Serialize)]
@@ -88,7 +88,7 @@ impl ChallengeFactor for Mfa<'_> {
             .workos
             .client()
             .post(url)
-            .bearer_auth(self.workos.key())
+            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
             .json(&params)
             .send()
             .await?
@@ -114,7 +114,8 @@ mod test {
     async fn it_calls_the_challenge_factor_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -162,7 +163,8 @@ mod test {
     async fn it_calls_the_challenge_factor_endpoint_with_an_sms_template() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

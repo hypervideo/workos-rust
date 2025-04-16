@@ -7,8 +7,8 @@ use thiserror::Error;
 
 use crate::organizations::OrganizationId;
 use crate::sso::{AccessToken, AuthorizationCode, ClientId};
-use crate::user_management::{ClientSecret, Impersonator, RefreshToken, User, UserManagement};
-use crate::{WorkOsError, WorkOsResult};
+use crate::user_management::{Impersonator, RefreshToken, User, UserManagement};
+use crate::{ApiKey, WorkOsError, WorkOsResult};
 
 /// The parameters for [`AuthenticateWithCode`].
 #[derive(Debug, Serialize)]
@@ -16,12 +16,7 @@ pub struct AuthenticateWithCodeParams<'a> {
     /// Identifies the application making the request to the WorkOS server.
     pub client_id: &'a ClientId,
 
-    /// Authenticates the application making the request to the WorkOS server.
-    pub client_secret: Option<&'a ClientSecret>,
-
     /// The randomly generated string used to derive the code challenge that was passed to the authorization url as part of the PKCE flow.
-    ///
-    /// This parameter is required when the client secret is not present.
     pub code_verifier: Option<&'a str>,
 
     /// The authorization value which was passed back as a query parameter in the callback to the redirect URI.
@@ -39,6 +34,7 @@ pub struct AuthenticateWithCodeParams<'a> {
 
 #[derive(Serialize)]
 struct AuthenticateWithCodeBody<'a> {
+    client_secret: Option<&'a ApiKey>,
     grant_type: &'a str,
 
     #[serde(flatten)]
@@ -134,7 +130,6 @@ pub trait AuthenticateWithCode {
     ///     .user_management()
     ///     .authenticate_with_code(&AuthenticateWithCodeParams {
     ///         client_id: &ClientId::from("client_123456789"),
-    ///         client_secret: Some(&ClientSecret::from("sk_example_123456789")),
     ///         code_verifier: None,
     ///         code: &AuthorizationCode::from("01E2RJ4C05B52KKZ8FSRDAP23J"),
     ///         invitation_token: None,
@@ -163,6 +158,7 @@ impl AuthenticateWithCode for UserManagement<'_> {
             .join("/user_management/authenticate")?;
 
         let body = AuthenticateWithCodeBody {
+            client_secret: self.workos.key(),
             grant_type: "authorization_code",
             params,
         };
@@ -199,7 +195,8 @@ mod test {
     async fn it_calls_the_token_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -245,7 +242,6 @@ mod test {
             .user_management()
             .authenticate_with_code(&AuthenticateWithCodeParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: Some(&ClientSecret::from("sk_example_123456789")),
                 code_verifier: None,
                 code: &AuthorizationCode::from("abc123"),
                 invitation_token: None,
@@ -273,7 +269,8 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_invalid_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -295,7 +292,6 @@ mod test {
             .user_management()
             .authenticate_with_code(&AuthenticateWithCodeParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: Some(&ClientSecret::from("sk_example_123456789")),
                 code_verifier: None,
                 code: &AuthorizationCode::from("abc123"),
                 invitation_token: None,
@@ -311,7 +307,8 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_unauthorized_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -333,7 +330,6 @@ mod test {
             .user_management()
             .authenticate_with_code(&AuthenticateWithCodeParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: Some(&ClientSecret::from("sk_example_123456789")),
                 code_verifier: None,
                 code: &AuthorizationCode::from("abc123"),
                 invitation_token: None,
@@ -349,7 +345,8 @@ mod test {
     async fn it_returns_an_error_when_the_authorization_code_is_invalid() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder()
+            .key(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -371,7 +368,6 @@ mod test {
             .user_management()
             .authenticate_with_code(&AuthenticateWithCodeParams {
                 client_id: &ClientId::from("client_123456789"),
-                client_secret: Some(&ClientSecret::from("sk_example_123456789")),
                 code_verifier: None,
                 code: &AuthorizationCode::from("abc123"),
                 invitation_token: None,
