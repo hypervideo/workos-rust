@@ -1,8 +1,10 @@
 use std::fmt::Display;
 
+use serde::Serialize;
+
 /// An authorization code that may be exchanged for an SSO profile and access
 /// token.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub struct AuthorizationCode(String);
 
 impl Display for AuthorizationCode {
