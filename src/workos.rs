@@ -6,6 +6,7 @@ use crate::mfa::Mfa;
 use crate::organizations::Organizations;
 use crate::passwordless::Passwordless;
 use crate::sso::Sso;
+use crate::user_management::UserManagement;
 use crate::ApiKey;
 
 /// The WorkOS client.
@@ -66,6 +67,11 @@ impl WorkOs {
     /// Returns an [`Sso`] instance.
     pub fn sso(&self) -> Sso {
         Sso::new(self)
+    }
+
+    /// Returns a [`UserManagement`] instance.
+    pub fn user_management(&self) -> UserManagement {
+        UserManagement::new(self)
     }
 }
 
