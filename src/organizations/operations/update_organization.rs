@@ -92,7 +92,7 @@ impl UpdateOrganization for Organizations<'_> {
             .workos
             .client()
             .put(url)
-            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
+            .bearer_auth(self.workos.key())
             .json(&params)
             .send()
             .await?
@@ -118,8 +118,7 @@ mod test {
     async fn it_calls_the_update_organization_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
