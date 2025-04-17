@@ -3,25 +3,26 @@ use std::net::IpAddr;
 use async_trait::async_trait;
 use serde::Serialize;
 
-use crate::organizations::OrganizationId;
 use crate::sso::ClientId;
 use crate::user_management::{
-    AuthenticateError, AuthenticationResponse, HandleAuthenticateError, RefreshToken,
-    UserManagement,
+    AuthenticateError, AuthenticationResponse, HandleAuthenticateError, UserManagement,
 };
 use crate::{ApiKey, WorkOsError, WorkOsResult};
 
-/// The parameters for [`AuthenticateWithRefreshToken`].
+/// The parameters for [`AuthenticateWithPassword`].
 #[derive(Debug, Serialize)]
-pub struct AuthenticateWithRefreshTokenParams<'a> {
+pub struct AuthenticateWithPasswordParams<'a> {
     /// Identifies the application making the request to the WorkOS server.
     pub client_id: &'a ClientId,
 
-    /// The refresh_token received from a successful authentication response.
-    pub refresh_token: &'a RefreshToken,
+    /// The email address of the user.
+    pub email: &'a str,
 
-    /// The organization to authorize in the new access token.
-    pub organization_id: Option<&'a OrganizationId>,
+    /// The password of the user.
+    pub password: &'a str,
+
+    /// The token of an invitation.
+    pub invitation_token: Option<&'a str>,
 
     /// The IP address of the request from the user who is attempting to authenticate.
     pub ip_address: Option<&'a IpAddr>,
@@ -31,20 +32,20 @@ pub struct AuthenticateWithRefreshTokenParams<'a> {
 }
 
 #[derive(Serialize)]
-struct AuthenticateWithRefreshTokenBody<'a> {
+struct AuthenticateWithPasswordBody<'a> {
     client_secret: &'a ApiKey,
     grant_type: &'a str,
 
     #[serde(flatten)]
-    params: &'a AuthenticateWithRefreshTokenParams<'a>,
+    params: &'a AuthenticateWithPasswordParams<'a>,
 }
 
-/// [WorkOS Docs: Authenticate with refresh token](https://workos.com/docs/reference/user-management/authentication/refresh-token)
+/// [WorkOS Docs: Authenticate with password](https://workos.com/docs/reference/user-management/authentication/password)
 #[async_trait]
-pub trait AuthenticateWithRefreshToken {
-    /// Use this endpoint to exchange a refresh token for a new access token.
+pub trait AuthenticateWithPassword {
+    /// Authenticates a user with email and password.
     ///
-    /// [WorkOS Docs: Authenticate with refresh token](https://workos.com/docs/reference/user-management/authentication/refresh-token)
+    /// [WorkOS Docs: Authenticate with password](https://workos.com/docs/reference/user-management/authentication/password)
     ///
     /// # Examples
     ///
@@ -61,41 +62,42 @@ pub trait AuthenticateWithRefreshToken {
     ///
     /// let AuthenticationResponse { user, .. } = workos
     ///     .user_management()
-    ///     .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
+    ///     .authenticate_with_password(&AuthenticateWithPasswordParams {
     ///         client_id: &ClientId::from("client_123456789"),
-    ///         refresh_token: &RefreshToken::from("Xw0NsCVXMBf7svAoIoKBmkpEK"),
-    ///         organization_id: None,
+    ///         email: "marcelina@example.com",
+    ///         password: "i8uv6g34kd490s",
+    ///         invitation_token: None,
     ///         ip_address: Some(&IpAddr::from_str("192.0.2.1")?),
-    ///         user_agent: Some("Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0"),
+    ///         user_agent: Some("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"),
     ///     })
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    async fn authenticate_with_refresh_token(
+    async fn authenticate_with_password(
         &self,
-        params: &AuthenticateWithRefreshTokenParams<'_>,
+        params: &AuthenticateWithPasswordParams<'_>,
     ) -> WorkOsResult<AuthenticationResponse, AuthenticateError>;
 }
 
 #[async_trait]
-impl AuthenticateWithRefreshToken for UserManagement<'_> {
-    async fn authenticate_with_refresh_token(
+impl AuthenticateWithPassword for UserManagement<'_> {
+    async fn authenticate_with_password(
         &self,
-        params: &AuthenticateWithRefreshTokenParams<'_>,
+        params: &AuthenticateWithPasswordParams<'_>,
     ) -> WorkOsResult<AuthenticationResponse, AuthenticateError> {
         let url = self
             .workos
             .base_url()
             .join("/user_management/authenticate")?;
 
-        let body = AuthenticateWithRefreshTokenBody {
+        let body = AuthenticateWithPasswordBody {
             client_secret: self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?,
-            grant_type: "refresh_token",
+            grant_type: "password",
             params,
         };
 
-        let authenticate_with_refresh_token_response = self
+        let authenticate_with_password_response = self
             .workos
             .client()
             .post(url)
@@ -107,7 +109,7 @@ impl AuthenticateWithRefreshToken for UserManagement<'_> {
             .json::<AuthenticationResponse>()
             .await?;
 
-        Ok(authenticate_with_refresh_token_response)
+        Ok(authenticate_with_password_response)
     }
 }
 
@@ -119,7 +121,7 @@ mod test {
     use tokio;
 
     use crate::sso::AccessToken;
-    use crate::user_management::UserId;
+    use crate::user_management::{RefreshToken, UserId};
     use crate::{ApiKey, WorkOs, WorkOsError};
 
     use super::*;
@@ -139,8 +141,9 @@ mod test {
             .match_body(Matcher::PartialJson(json!({
                 "client_id": "client_123456789",
                 "client_secret": "sk_example_123456789",
-                "grant_type": "refresh_token",
-                "refresh_token": "abc123",
+                "grant_type": "password",
+                "email": "marcelina@example.com",
+                "password": "i8uv6g34kd490s",
             })))
             .with_status(200)
             .with_body(
@@ -160,11 +163,7 @@ mod test {
                     "organization_id": "org_01H945H0YD4F97JN9MATX7BYAG",
                     "access_token": "eyJhb.nNzb19vaWRjX2tleV9.lc5Uk4yWVk5In0",
                     "refresh_token": "yAjhKk123NLIjdrBdGZPf8pLIDvK",
-                    "authentication_method": "SSO",
-                    "impersonator": {
-                        "email": "admin@foocorp.com",
-                        "reason": "Investigating an issue with the customer's account."
-                    }
+                    "authentication_method": "Password",
                 })
                 .to_string(),
             )
@@ -173,10 +172,11 @@ mod test {
 
         let response = workos
             .user_management()
-            .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
+            .authenticate_with_password(&AuthenticateWithPasswordParams {
                 client_id: &ClientId::from("client_123456789"),
-                refresh_token: &RefreshToken::from("abc123"),
-                organization_id: None,
+                email: "marcelina@example.com",
+                password: "i8uv6g34kd490s",
+                invitation_token: None,
                 ip_address: None,
                 user_agent: None,
             })
@@ -222,10 +222,11 @@ mod test {
 
         let result = workos
             .user_management()
-            .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
+            .authenticate_with_password(&AuthenticateWithPasswordParams {
                 client_id: &ClientId::from("client_123456789"),
-                refresh_token: &RefreshToken::from("abc123"),
-                organization_id: None,
+                email: "marcelina@example.com",
+                password: "i8uv6g34kd490s",
+                invitation_token: None,
                 ip_address: None,
                 user_agent: None,
             })
@@ -259,10 +260,11 @@ mod test {
 
         let result = workos
             .user_management()
-            .authenticate_with_refresh_token(&AuthenticateWithRefreshTokenParams {
+            .authenticate_with_password(&AuthenticateWithPasswordParams {
                 client_id: &ClientId::from("client_123456789"),
-                refresh_token: &RefreshToken::from("abc123"),
-                organization_id: None,
+                email: "marcelina@example.com",
+                password: "i8uv6g34kd490s",
+                invitation_token: None,
                 ip_address: None,
                 user_agent: None,
             })
