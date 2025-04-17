@@ -55,7 +55,7 @@ pub struct User {
     pub external_id: Option<String>,
 
     /// Object containing metadata key/value pairs associated with the user.
-    pub metadata: Metadata,
+    pub metadata: Option<Metadata>,
 
     /// The timestamps for the user.
     #[serde(flatten)]
