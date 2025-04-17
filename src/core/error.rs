@@ -7,10 +7,6 @@ pub enum WorkOsError<E> {
     #[error("operational error")]
     Operation(E),
 
-    /// An API key is required for the current operation.
-    #[error("API key required")]
-    ApiKeyRequired,
-
     /// An unauthorized response was received from the WorkOS API.
     #[error("unauthorized")]
     Unauthorized,

@@ -33,7 +33,7 @@ pub struct AuthenticateWithCodeParams<'a> {
 
 #[derive(Serialize)]
 struct AuthenticateWithCodeBody<'a> {
-    client_secret: Option<&'a ApiKey>,
+    client_secret: &'a ApiKey,
     grant_type: &'a str,
 
     #[serde(flatten)]
@@ -130,8 +130,7 @@ mod test {
     async fn it_calls_the_token_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -204,8 +203,7 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_invalid_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -242,8 +240,7 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_unauthorized_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -280,8 +277,7 @@ mod test {
     async fn it_returns_an_error_when_the_authorization_code_is_invalid() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

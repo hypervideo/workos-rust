@@ -3,9 +3,7 @@ use serde::Serialize;
 
 use crate::organizations::OrganizationId;
 use crate::sso::{Connection, ConnectionType, Sso};
-use crate::{
-    KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsError, WorkOsResult,
-};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListConnections`].
 #[derive(Debug, Default, Serialize)]
@@ -66,7 +64,7 @@ impl ListConnections for Sso<'_> {
             .client()
             .get(url)
             .query(&params)
-            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
+            .bearer_auth(self.workos.key())
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
@@ -92,8 +90,7 @@ mod test {
     async fn it_calls_the_list_connections_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -153,8 +150,7 @@ mod test {
     async fn it_calls_the_list_connections_endpoint_with_the_connection_type() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

@@ -3,9 +3,7 @@ use serde::Serialize;
 
 use crate::directory_sync::{Directory, DirectorySync, DirectoryType};
 use crate::organizations::OrganizationId;
-use crate::{
-    KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsError, WorkOsResult,
-};
+use crate::{KnownOrUnknown, PaginatedList, PaginationParams, ResponseExt, WorkOsResult};
 
 /// The parameters for [`ListDirectories`].
 #[derive(Debug, Default, Serialize)]
@@ -72,7 +70,7 @@ impl ListDirectories for DirectorySync<'_> {
             .client()
             .get(url)
             .query(&params)
-            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
+            .bearer_auth(self.workos.key())
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
@@ -98,8 +96,7 @@ mod test {
     async fn it_calls_the_list_directories_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -160,8 +157,7 @@ mod test {
     async fn it_calls_the_list_directories_endpoint_with_the_directory_type() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::admin_portal::AdminPortal;
 use crate::organizations::OrganizationId;
-use crate::{ResponseExt, WorkOsError, WorkOsResult};
+use crate::{ResponseExt, WorkOsResult};
 
 /// The intent of an Admin Portal session.
 #[derive(Debug, Serialize)]
@@ -104,7 +104,7 @@ impl GeneratePortalLink for AdminPortal<'_> {
             .workos
             .client()
             .post(url)
-            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
+            .bearer_auth(self.workos.key())
             .json(&params)
             .send()
             .await?
@@ -130,8 +130,7 @@ mod test {
     async fn it_calls_the_generate_portal_link_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&dbg!(server.url()))
             .unwrap()
             .build();

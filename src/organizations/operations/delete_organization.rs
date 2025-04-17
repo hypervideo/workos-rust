@@ -67,7 +67,7 @@ impl DeleteOrganization for Organizations<'_> {
         self.workos
             .client()
             .delete(url)
-            .bearer_auth(self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?)
+            .bearer_auth(self.workos.key())
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?;
@@ -88,8 +88,7 @@ mod test {
     async fn it_calls_the_delete_organization_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();

@@ -9,7 +9,7 @@ use crate::user_management::{
     AuthenticateError, AuthenticationResponse, HandleAuthenticateError, RefreshToken,
     UserManagement,
 };
-use crate::{ApiKey, WorkOsError, WorkOsResult};
+use crate::{ApiKey, WorkOsResult};
 
 /// The parameters for [`AuthenticateWithRefreshToken`].
 #[derive(Debug, Serialize)]
@@ -90,7 +90,7 @@ impl AuthenticateWithRefreshToken for UserManagement<'_> {
             .join("/user_management/authenticate")?;
 
         let body = AuthenticateWithRefreshTokenBody {
-            client_secret: self.workos.key().ok_or(WorkOsError::ApiKeyRequired)?,
+            client_secret: self.workos.key(),
             grant_type: "refresh_token",
             params,
         };
@@ -128,8 +128,7 @@ mod test {
     async fn it_calls_the_token_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -201,8 +200,7 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_invalid_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
@@ -238,8 +236,7 @@ mod test {
     async fn it_returns_an_unauthorized_error_with_an_unauthorized_client() {
         let mut server = mockito::Server::new_async().await;
 
-        let workos = WorkOs::builder()
-            .key(&ApiKey::from("sk_example_123456789"))
+        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
             .base_url(&server.url())
             .unwrap()
             .build();
