@@ -1,14 +1,13 @@
 use std::net::IpAddr;
 
 use async_trait::async_trait;
-use reqwest::{Response, StatusCode};
-use serde::{Deserialize, Serialize};
-use thiserror::Error;
+use serde::Serialize;
 
-use crate::organizations::OrganizationId;
-use crate::sso::{AccessToken, AuthorizationCode, ClientId};
-use crate::user_management::{Impersonator, RefreshToken, User, UserManagement};
-use crate::{ApiKey, WorkOsError, WorkOsResult};
+use crate::sso::{AuthorizationCode, ClientId};
+use crate::user_management::{
+    AuthenticateError, AuthenticationResponse, HandleAuthenticateError, UserManagement,
+};
+use crate::{ApiKey, WorkOsResult};
 
 /// The parameters for [`AuthenticateWithCode`].
 #[derive(Debug, Serialize)]
@@ -41,71 +40,6 @@ struct AuthenticateWithCodeBody<'a> {
     params: &'a AuthenticateWithCodeParams<'a>,
 }
 
-/// The response for [`AuthenticateWithCode`].
-#[derive(Debug, Deserialize)]
-pub struct AuthenticateWithCodeResponse {
-    /// The corresponding user object.
-    pub user: User,
-
-    /// The organization the user selected to sign in to.
-    pub organization_id: Option<OrganizationId>,
-
-    /// A JWT containing information about the session.
-    pub access_token: AccessToken,
-
-    /// Exchange this token for a new access token.
-    pub refresh_token: RefreshToken,
-
-    /// The authentication method used to initiate the session.
-    pub authentication_method: String,
-
-    /// The WorkOS Dashboard user who is impersonating the user.
-    pub impersonator: Option<Impersonator>,
-}
-
-/// An error returned from [`AuthenticateWithCode`].
-#[derive(Debug, Error, Deserialize)]
-#[error("{error}: {error_description}")]
-pub struct AuthenticateWithCodeError {
-    /// The error code of the error that occurred.
-    pub error: String,
-
-    /// The description of the error.
-    pub error_description: String,
-}
-
-#[async_trait]
-trait HandleAuthenticateWithCodeError
-where
-    Self: Sized,
-{
-    async fn handle_authenticate_with_code_error(
-        self,
-    ) -> WorkOsResult<Self, AuthenticateWithCodeError>;
-}
-
-#[async_trait]
-impl HandleAuthenticateWithCodeError for Response {
-    async fn handle_authenticate_with_code_error(
-        self,
-    ) -> WorkOsResult<Self, AuthenticateWithCodeError> {
-        match self.error_for_status_ref() {
-            Ok(_) => Ok(self),
-            Err(err) => match err.status() {
-                Some(StatusCode::BAD_REQUEST) => {
-                    let error = self.json::<AuthenticateWithCodeError>().await?;
-
-                    Err(match error.error.as_str() {
-                        "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
-                        _ => WorkOsError::Operation(error),
-                    })
-                }
-                _ => Err(WorkOsError::RequestError(err)),
-            },
-        }
-    }
-}
-
 /// [WorkOS Docs: Authenticate with code](https://workos.com/docs/reference/user-management/authentication/code)
 #[async_trait]
 pub trait AuthenticateWithCode {
@@ -123,10 +57,10 @@ pub trait AuthenticateWithCode {
     /// # use workos::user_management::*;
     /// use workos::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), AuthenticateWithCodeError> {
+    /// # async fn run() -> WorkOsResult<(), AuthenticateError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
-    /// let AuthenticateWithCodeResponse { user, .. } = workos
+    /// let AuthenticationResponse { user, .. } = workos
     ///     .user_management()
     ///     .authenticate_with_code(&AuthenticateWithCodeParams {
     ///         client_id: &ClientId::from("client_123456789"),
@@ -143,7 +77,7 @@ pub trait AuthenticateWithCode {
     async fn authenticate_with_code(
         &self,
         params: &AuthenticateWithCodeParams<'_>,
-    ) -> WorkOsResult<AuthenticateWithCodeResponse, AuthenticateWithCodeError>;
+    ) -> WorkOsResult<AuthenticationResponse, AuthenticateError>;
 }
 
 #[async_trait]
@@ -151,7 +85,7 @@ impl AuthenticateWithCode for UserManagement<'_> {
     async fn authenticate_with_code(
         &self,
         params: &AuthenticateWithCodeParams<'_>,
-    ) -> WorkOsResult<AuthenticateWithCodeResponse, AuthenticateWithCodeError> {
+    ) -> WorkOsResult<AuthenticationResponse, AuthenticateError> {
         let url = self
             .workos
             .base_url()
@@ -170,9 +104,9 @@ impl AuthenticateWithCode for UserManagement<'_> {
             .json(&body)
             .send()
             .await?
-            .handle_authenticate_with_code_error()
+            .handle_authenticate_error()
             .await?
-            .json::<AuthenticateWithCodeResponse>()
+            .json::<AuthenticationResponse>()
             .await?;
 
         Ok(authenticate_with_code_response)
@@ -186,7 +120,8 @@ mod test {
     use serde_json::json;
     use tokio;
 
-    use crate::user_management::UserId;
+    use crate::sso::AccessToken;
+    use crate::user_management::{RefreshToken, UserId};
     use crate::{ApiKey, WorkOs, WorkOsError};
 
     use super::*;
