@@ -15,6 +15,7 @@ rustls-tls = ["reqwest/rustls-tls"]
 [dependencies]
 async-trait = "0.1.88"
 chrono = { version = "0.4.40", features = ["serde"] }
+jsonwebtoken = "9.3.1"
 querystring = "1.1.0"
 reqwest = { version = "0.12.0", features = ["json"] }
 serde = { version = "1.0.219", features = ["derive"] }
