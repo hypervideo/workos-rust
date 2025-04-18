@@ -7,13 +7,15 @@ use crate::{WorkOsError, WorkOsResult};
 
 /// An error returned from authenticate requests.
 #[derive(Debug, Error, Deserialize)]
-#[error("{error}: {error_description}")]
+#[error("{code}: {message}")]
 pub struct AuthenticateError {
-    /// The error code of the error that occurred.
-    pub error: String,
+    #[serde(alias = "error")]
+    /// The error code of the error that occured.
+    pub code: String,
 
     /// The description of the error.
-    pub error_description: String,
+    #[serde(alias = "error_description")]
+    pub message: String,
 }
 
 #[async_trait]
@@ -33,7 +35,7 @@ impl HandleAuthenticateError for Response {
                 Some(StatusCode::BAD_REQUEST) => {
                     let error = self.json::<AuthenticateError>().await?;
 
-                    Err(match error.error.as_str() {
+                    Err(match error.code.as_str() {
                         "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
                         _ => WorkOsError::Operation(error),
                     })
