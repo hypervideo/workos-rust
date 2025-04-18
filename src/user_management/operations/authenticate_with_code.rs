@@ -308,9 +308,9 @@ mod test {
             .await;
 
         if let Err(WorkOsError::Operation(error)) = result {
-            assert_eq!(error.error, "invalid_grant");
+            assert_eq!(error.code, "invalid_grant");
             assert_eq!(
-                error.error_description,
+                error.message,
                 "The code 'abc123' has expired or is invalid."
             );
         } else {
