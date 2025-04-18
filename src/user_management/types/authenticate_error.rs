@@ -38,6 +38,11 @@ impl HandleAuthenticateError for Response {
                         _ => WorkOsError::Operation(error),
                     })
                 }
+                Some(StatusCode::FORBIDDEN) => {
+                    let error = self.json::<AuthenticateError>().await?;
+
+                    Err(WorkOsError::Operation(error))
+                }
                 _ => Err(WorkOsError::RequestError(err)),
             },
         }
