@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectoryUser};
 
 /// [WorkOS Docs: `dsync.group.user_removed` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_removed)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserRemovedFromGroupWebhook {
     /// The directory ID.
     pub directory_id: DirectoryId,

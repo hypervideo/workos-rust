@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::directory_sync::DirectoryUser;
 
 /// A [`DirectoryUser`] with their previous attributes.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserWithPreviousAttributes {
     /// The directory user.
     #[serde(flatten)]
@@ -17,7 +17,7 @@ pub struct DirectoryUserWithPreviousAttributes {
 }
 
 /// [WorkOS Docs: `dsync.user.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-user#webhooks-dsync.user.updated)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserUpdatedWebhook(pub DirectoryUserWithPreviousAttributes);
 
 #[cfg(test)]

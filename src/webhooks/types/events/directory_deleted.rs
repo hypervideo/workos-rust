@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::webhooks::Directory;
 
 /// [WorkOS Docs: `dsync.deleted` Webhook](https://workos.com/docs/reference/webhooks/directory#webhooks-dsync.deleted)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryDeletedWebhook(pub Directory);
 
 #[cfg(test)]

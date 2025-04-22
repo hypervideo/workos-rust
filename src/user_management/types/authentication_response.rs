@@ -5,7 +5,7 @@ use crate::{organizations::OrganizationId, sso::AccessToken};
 use super::{Impersonator, RefreshToken, User};
 
 /// The authentication method used to initiate the session.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize)]
 pub enum AuthenticationMethod {
     /// Single Sign-On (SSO)
     SSO,

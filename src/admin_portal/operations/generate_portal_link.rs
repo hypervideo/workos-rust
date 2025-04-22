@@ -6,7 +6,7 @@ use crate::organizations::OrganizationId;
 use crate::{ResponseExt, WorkOsResult};
 
 /// The intent of an Admin Portal session.
-#[derive(Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AdminPortalIntent {
     /// The Admin Portal will be used to setup Single Sign-On (SSO).

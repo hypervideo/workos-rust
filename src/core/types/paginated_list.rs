@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// A paginated list of records.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PaginatedList<T> {
     /// The list of items in the current page.
     pub data: Vec<T>,
@@ -12,7 +12,7 @@ pub struct PaginatedList<T> {
 }
 
 /// The metadata for a [`PaginatedList`].
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ListMetadata {
     /// The pagination cursor used to retrieve the previous page of records.
     pub before: Option<String>,

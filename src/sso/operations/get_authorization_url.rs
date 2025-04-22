@@ -4,7 +4,7 @@ use crate::organizations::OrganizationId;
 use crate::sso::{ClientId, ConnectionId, Sso};
 
 /// An OAuth provider to use for Single Sign-On (SSO).
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Provider {
     /// Sign in with Google OAuth.
     GoogleOauth,

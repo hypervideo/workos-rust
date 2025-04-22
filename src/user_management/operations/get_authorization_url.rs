@@ -12,7 +12,7 @@ pub enum CodeChallenge<'a> {
 }
 
 /// Which AuthKit screen users should land on upon redirection.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum ScreenHint {
     /// Sign up screen.
     SignUp,
@@ -22,7 +22,7 @@ pub enum ScreenHint {
 }
 
 /// An OAuth provider to use for Single Sign-On (SSO) or AuthKit.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Provider {
     /// Sign in with AuthKit.
     AuthKit {

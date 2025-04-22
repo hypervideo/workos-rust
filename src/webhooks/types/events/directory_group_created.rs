@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::directory_sync::DirectoryGroup;
 
 /// [WorkOS Docs: `dsync.group.created` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.created)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryGroupCreatedWebhook(pub DirectoryGroup);
 
 #[cfg(test)]

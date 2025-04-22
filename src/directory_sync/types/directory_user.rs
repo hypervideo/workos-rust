@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::fmt::Display;
 
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -9,29 +9,14 @@ use crate::organizations::OrganizationId;
 use crate::{KnownOrUnknown, RawAttributes, Timestamps};
 
 /// The ID of a [`DirectoryUser`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct DirectoryUserId(String);
 
-impl Display for DirectoryUserId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for DirectoryUserId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for DirectoryUserId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// [WorkOS Docs: Directory User](https://workos.com/docs/reference/directory-sync/directory-user)
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DirectoryUser<TCustomAttributes = HashMap<String, Value>> {
     /// The ID of the directory user.
     pub id: DirectoryUserId,
@@ -82,7 +67,7 @@ impl DirectoryUser {
 }
 
 /// The state of a [`DirectoryUser`].
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryUserState {
     /// The directory user is active.
@@ -96,7 +81,7 @@ pub enum DirectoryUserState {
 }
 
 /// An email address for a [`DirectoryUser`].
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DirectoryUserEmail {
     /// Whether this is the directory user's primary email address.
     pub primary: Option<bool>,

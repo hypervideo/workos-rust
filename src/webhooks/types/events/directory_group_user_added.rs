@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::directory_sync::{DirectoryGroup, DirectoryId, DirectoryUser};
 
 /// [WorkOS Docs: `dsync.group.user_added` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.user_added)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryUserAddedToGroupWebhook {
     /// The directory ID.
     pub directory_id: DirectoryId,
