@@ -1,5 +1,4 @@
-use std::fmt::Display;
-
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
 use crate::directory_sync::DirectoryType;
@@ -7,29 +6,14 @@ use crate::organizations::OrganizationId;
 use crate::{KnownOrUnknown, Timestamps};
 
 /// The ID of a [`Directory`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct DirectoryId(String);
 
-impl Display for DirectoryId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for DirectoryId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for DirectoryId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// The state of a [`Directory`].
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DirectoryState {
     /// The directory is inactve.

@@ -1,34 +1,18 @@
-use std::fmt::Display;
-
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
 use crate::mfa::AuthenticationFactorId;
 use crate::{Timestamp, Timestamps};
 
 /// The ID of an [`AuthenticationChallenge`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct AuthenticationChallengeId(String);
 
-impl Display for AuthenticationChallengeId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for AuthenticationChallengeId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for AuthenticationChallengeId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// [WorkOS Docs: Authentication Challenge](https://workos.com/docs/reference/mfa/authentication-challenge)
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationChallenge {
     /// The ID of the authentication challenge.
     pub id: AuthenticationChallengeId,

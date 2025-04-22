@@ -2,7 +2,7 @@ use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 /// A UTC timestamp.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Timestamp(pub DateTime<FixedOffset>);
 
 impl TryFrom<String> for Timestamp {
@@ -22,7 +22,7 @@ impl TryFrom<&str> for Timestamp {
 }
 
 /// The timestamps for an object.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Timestamps {
     /// The timestamp indicating when the object was created.
     pub created_at: Timestamp,

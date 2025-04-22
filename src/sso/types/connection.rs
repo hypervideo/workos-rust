@@ -1,5 +1,4 @@
-use std::fmt::Display;
-
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
 use crate::organizations::OrganizationId;
@@ -7,29 +6,14 @@ use crate::sso::ConnectionType;
 use crate::{KnownOrUnknown, Timestamps};
 
 /// The ID of a [`Connection`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct ConnectionId(String);
 
-impl Display for ConnectionId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for ConnectionId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for ConnectionId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// The state of a [`Connection`].
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ConnectionState {
     /// The connection is active.
@@ -40,7 +24,7 @@ pub enum ConnectionState {
 }
 
 /// [WorkOS Docs: Connection](https://workos.com/docs/reference/sso/connection)
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Connection {
     /// The ID of the connection.
     pub id: ConnectionId,

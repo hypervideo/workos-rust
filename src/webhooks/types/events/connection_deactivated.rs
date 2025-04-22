@@ -3,7 +3,7 @@ use serde::Deserialize;
 use crate::sso::Connection;
 
 /// [WorkOS Docs: `connection.deactivated` Webhook](https://workos.com/docs/reference/webhooks/connection#webhooks-sso.connection.deactivated)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct ConnectionDeactivatedWebhook(pub Connection);
 
 #[cfg(test)]

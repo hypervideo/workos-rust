@@ -1,5 +1,4 @@
-use std::fmt::Display;
-
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
 use crate::organizations::OrganizationId;
@@ -8,29 +7,14 @@ use crate::{KnownOrUnknown, RawAttributes};
 use super::{ConnectionId, ConnectionType};
 
 /// The ID of a [`Profile`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct ProfileId(String);
 
-impl Display for ProfileId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for ProfileId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for ProfileId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// [WorkOS Docs: Profile](https://workos.com/docs/reference/sso/profile)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Profile {
     /// The ID of the profile.
     pub id: ProfileId,

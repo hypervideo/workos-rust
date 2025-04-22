@@ -1,33 +1,17 @@
-use std::fmt::Display;
-
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
 use crate::Timestamp;
 
 /// The ID of an [`PasswordlessSession`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct PasswordlessSessionId(String);
 
-impl Display for PasswordlessSessionId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for PasswordlessSessionId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for PasswordlessSessionId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// The type of a [`PasswordlessSession`].
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PasswordlessSessionType {
     /// Magic Link.
@@ -41,7 +25,7 @@ pub enum PasswordlessSessionType {
 }
 
 /// [WorkOS Docs: Passwordless Session](https://workos.com/docs/reference/magic-link/passwordless-session)
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PasswordlessSession {
     /// The ID of the passwordless session.
     pub id: PasswordlessSessionId,

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// The type of a [`Directory`](crate::directory_sync::Directory).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DirectoryType {
     /// Azure AD SCIM v2.0.
     ///

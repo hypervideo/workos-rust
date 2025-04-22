@@ -6,7 +6,7 @@ use thiserror::Error;
 use crate::{WorkOsError, WorkOsResult};
 
 /// An error returned from authenticate requests.
-#[derive(Debug, Error, Deserialize)]
+#[derive(Debug, Deserialize, Error)]
 #[error("{code}: {message}")]
 pub struct AuthenticateError {
     #[serde(alias = "error")]

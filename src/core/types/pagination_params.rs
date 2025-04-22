@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 /// The parameters used to control pagination for a given paginated endpoint.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct PaginationParams<'a> {
     /// The order in which records should be paginated.
     pub order: &'a PaginationOrder,
@@ -24,7 +24,7 @@ impl Default for PaginationParams<'_> {
 }
 
 /// The order in which records should be returned when paginating.
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PaginationOrder {
     /// Records are returned in ascending order.

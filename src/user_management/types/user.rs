@@ -1,34 +1,18 @@
-use std::fmt::Display;
-
+use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::{Metadata, Timestamp, Timestamps};
 
 /// The ID of a [`User`].
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+#[from(forward)]
 pub struct UserId(String);
 
-impl Display for UserId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for UserId {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<&str> for UserId {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
 /// [WorkOS Docs: User](https://workos.com/docs/reference/user-management/user)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
     /// The unique ID of the user.
     pub id: UserId,

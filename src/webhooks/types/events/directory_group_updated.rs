@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::directory_sync::DirectoryGroup;
 
 /// A [`DirectoryGroup`] with its previous attributes.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryGroupWithPreviousAttributes {
     /// The directory group.
     #[serde(flatten)]
@@ -17,7 +17,7 @@ pub struct DirectoryGroupWithPreviousAttributes {
 }
 
 /// [WorkOS Docs: `dsync.group.updated` Webhook](https://workos.com/docs/reference/webhooks/directory-group#webhooks-dsync.group.updated)
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 pub struct DirectoryGroupUpdatedWebhook(pub DirectoryGroupWithPreviousAttributes);
 
 #[cfg(test)]
