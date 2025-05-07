@@ -5,6 +5,7 @@ mod get_authorization_url;
 mod get_jwks;
 mod get_jwks_url;
 mod get_logout_url;
+mod list_users;
 
 pub use authenticate_with_code::*;
 pub use authenticate_with_password::*;
@@ -13,3 +14,4 @@ pub use get_authorization_url::*;
 pub use get_jwks::*;
 pub use get_jwks_url::*;
 pub use get_logout_url::*;
+pub use list_users::*;
