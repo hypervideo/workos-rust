@@ -2,7 +2,7 @@ use url::{ParseError, Url};
 
 use crate::organizations::OrganizationId;
 use crate::sso::{ClientId, ConnectionId};
-use crate::user_management::UserManagement;
+use crate::user_management::{OauthProvider, UserManagement};
 
 /// Code challenge used for the PKCE flow.
 #[derive(Debug)]
@@ -30,14 +30,8 @@ pub enum Provider {
         screen_hint: Option<ScreenHint>,
     },
 
-    /// Sign in with Apple OAuth.
-    AppleOauth,
-
-    /// Sign in with Google OAuth.
-    GoogleOauth,
-
-    /// Sign in with Microsoft OAuth.
-    MicrosoftOauth,
+    /// Sign in with OAuth.
+    Oauth(OauthProvider),
 }
 
 /// The selector to use to determine which connection to use for SSO.
@@ -143,9 +137,7 @@ impl GetAuthorizationUrl for UserManagement<'_> {
                     "provider",
                     match provider {
                         Provider::AuthKit { .. } => "authkit".to_string(),
-                        Provider::AppleOauth => "AppleOAuth".to_string(),
-                        Provider::GoogleOauth => "GoogleOAuth".to_string(),
-                        Provider::MicrosoftOauth => "MicrosoftOAuth".to_string(),
+                        Provider::Oauth(provider) => provider.to_string(),
                     },
                 ),
             };
@@ -267,7 +259,9 @@ mod test {
             .get_authorization_url(&GetAuthorizationUrlParams {
                 client_id: &ClientId::from("client_123456789"),
                 redirect_uri: "https://your-app.com/callback",
-                connection_selector: ConnectionSelector::Provider(&Provider::GoogleOauth),
+                connection_selector: ConnectionSelector::Provider(&Provider::Oauth(
+                    OauthProvider::GoogleOAuth,
+                )),
                 state: None,
                 code_challenge: None,
                 login_hint: None,

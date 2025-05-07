@@ -44,7 +44,7 @@ pub trait ListUsers {
     /// # use workos::user_management::*;
     /// use workos::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// # async fn run() -> WorkOsResult<(), ListUsersError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let paginated_users = workos
@@ -60,7 +60,7 @@ pub trait ListUsers {
     async fn list_users(
         &self,
         params: &ListUsersParams<'_>,
-    ) -> WorkOsResult<PaginatedList<User>, ()>;
+    ) -> WorkOsResult<PaginatedList<User>, ListUsersError>;
 }
 
 #[async_trait]
@@ -68,7 +68,7 @@ impl ListUsers for UserManagement<'_> {
     async fn list_users(
         &self,
         params: &ListUsersParams<'_>,
-    ) -> WorkOsResult<PaginatedList<User>, ()> {
+    ) -> WorkOsResult<PaginatedList<User>, ListUsersError> {
         let url = self.workos.base_url().join("/user_management/users")?;
         let users = self
             .workos

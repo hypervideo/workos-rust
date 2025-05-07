@@ -1,28 +1,14 @@
 use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
+use super::OauthProvider;
+
 /// The ID of a [`Identity`].
 #[derive(
     Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
 )]
 #[from(forward)]
 pub struct IdentityId(String);
-
-/// The type of OAuth provider.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub enum OauthProvider {
-    /// Apple OAuth.
-    AppleOAuth,
-
-    /// GitHub OAuth.
-    GitHubOAuth,
-
-    /// Google OAuth.
-    GoogleOAuth,
-
-    /// Microsoft OAuth.
-    MicrosoftOAuth,
-}
 
 /// he type of the identity.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]

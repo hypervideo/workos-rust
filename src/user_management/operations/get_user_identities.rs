@@ -28,7 +28,7 @@ pub trait GetUserIdentities {
     /// # use workos::user_management::*;
     /// use workos::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), ()> {
+    /// # async fn run() -> WorkOsResult<(), GetUserIdentitiesError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let identities = workos
@@ -38,12 +38,18 @@ pub trait GetUserIdentities {
     /// # Ok(())
     /// # }
     /// ```
-    async fn get_user_identities(&self, user_id: &UserId) -> WorkOsResult<Vec<Identity>, ()>;
+    async fn get_user_identities(
+        &self,
+        user_id: &UserId,
+    ) -> WorkOsResult<Vec<Identity>, GetUserIdentitiesError>;
 }
 
 #[async_trait]
 impl GetUserIdentities for UserManagement<'_> {
-    async fn get_user_identities(&self, user_id: &UserId) -> WorkOsResult<Vec<Identity>, ()> {
+    async fn get_user_identities(
+        &self,
+        user_id: &UserId,
+    ) -> WorkOsResult<Vec<Identity>, GetUserIdentitiesError> {
         let url = self
             .workos
             .base_url()
