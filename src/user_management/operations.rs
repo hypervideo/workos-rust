@@ -1,6 +1,7 @@
 mod authenticate_with_code;
 mod authenticate_with_password;
 mod authenticate_with_refresh_token;
+mod create_user;
 mod get_authorization_url;
 mod get_jwks;
 mod get_jwks_url;
@@ -11,6 +12,7 @@ mod list_users;
 pub use authenticate_with_code::*;
 pub use authenticate_with_password::*;
 pub use authenticate_with_refresh_token::*;
+pub use create_user::*;
 pub use get_authorization_url::*;
 pub use get_jwks::*;
 pub use get_jwks_url::*;
