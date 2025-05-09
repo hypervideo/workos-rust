@@ -11,6 +11,9 @@ pub struct PaginationParams<'a> {
 
     /// The cursor before which records should be retrieved.
     pub before: Option<&'a str>,
+
+    /// Upper limit on the number of objects to return, between 1 and 100. The default value is 10.
+    pub limit: Option<u8>,
 }
 
 impl Default for PaginationParams<'_> {
@@ -19,6 +22,7 @@ impl Default for PaginationParams<'_> {
             order: &PaginationOrder::DEFAULT,
             before: None,
             after: None,
+            limit: None,
         }
     }
 }
