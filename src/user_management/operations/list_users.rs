@@ -40,9 +40,9 @@ pub trait ListUsers {
     /// # Examples
     ///
     /// ```
-    /// # use workos::WorkOsResult;
-    /// # use workos::user_management::*;
-    /// use workos::{ApiKey, WorkOs};
+    /// # use workos_sdk::WorkOsResult;
+    /// # use workos_sdk::user_management::*;
+    /// use workos_sdk::{ApiKey, WorkOs};
     ///
     /// # async fn run() -> WorkOsResult<(), ListUsersError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));

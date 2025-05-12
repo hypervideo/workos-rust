@@ -24,9 +24,9 @@ pub trait GetOrganization {
     /// # Examples
     ///
     /// ```
-    /// # use workos::WorkOsResult;
-    /// # use workos::organizations::*;
-    /// use workos::{ApiKey, WorkOs};
+    /// # use workos_sdk::WorkOsResult;
+    /// # use workos_sdk::organizations::*;
+    /// use workos_sdk::{ApiKey, WorkOs};
     ///
     /// # async fn run() -> WorkOsResult<(), GetOrganizationError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
