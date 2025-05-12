@@ -3,26 +3,24 @@ use std::net::IpAddr;
 use async_trait::async_trait;
 use serde::Serialize;
 
-use crate::sso::{AuthorizationCode, ClientId};
+use crate::sso::ClientId;
 use crate::user_management::{
-    AuthenticateError, AuthenticationResponse, HandleAuthenticateError, UserManagement,
+    AuthenticateError, AuthenticationResponse, EmailVerificationCode, HandleAuthenticateError,
+    PendingAuthenticationToken, UserManagement,
 };
 use crate::{ApiKey, WorkOsResult};
 
-/// The parameters for [`AuthenticateWithCode`].
+/// The parameters for [`AuthenticateWithEmailVerification`].
 #[derive(Debug, Serialize)]
-pub struct AuthenticateWithCodeParams<'a> {
+pub struct AuthenticateWithEmailVerificationParams<'a> {
     /// Identifies the application making the request to the WorkOS server.
     pub client_id: &'a ClientId,
 
-    /// The randomly generated string used to derive the code challenge that was passed to the authorization url as part of the PKCE flow.
-    pub code_verifier: Option<&'a str>,
+    /// The one-time email verification code received by the user.
+    pub code: &'a EmailVerificationCode,
 
-    /// The authorization value which was passed back as a query parameter in the callback to the redirect URI.
-    pub code: &'a AuthorizationCode,
-
-    /// The token of an invitation.
-    pub invitation_token: Option<&'a str>,
+    /// The authentication token returned from a failed authentication attempt due to the corresponding error.
+    pub pending_authentication_token: &'a PendingAuthenticationToken,
 
     /// The IP address of the request from the user who is attempting to authenticate.
     pub ip_address: Option<&'a IpAddr>,
@@ -32,7 +30,7 @@ pub struct AuthenticateWithCodeParams<'a> {
 }
 
 #[derive(Serialize)]
-struct AuthenticateWithCodeBody<'a> {
+struct AuthenticateWithEmailVerificationBody<'a> {
     /// Authenticates the application making the request to the WorkOS server.
     client_secret: &'a ApiKey,
 
@@ -40,15 +38,15 @@ struct AuthenticateWithCodeBody<'a> {
     grant_type: &'a str,
 
     #[serde(flatten)]
-    params: &'a AuthenticateWithCodeParams<'a>,
+    params: &'a AuthenticateWithEmailVerificationParams<'a>,
 }
 
-/// [WorkOS Docs: Authenticate with code](https://workos.com/docs/reference/user-management/authentication/code)
+/// [WorkOS Docs: Authenticate with an email verification code](https://workos.com/docs/reference/user-management/authentication/email-verification)
 #[async_trait]
-pub trait AuthenticateWithCode {
-    /// Authenticates a user using AuthKit, OAuth or an organization's SSO connection.
+pub trait AuthenticateWithEmailVerification {
+    /// Authenticates a user with an unverified email and verifies their email address.
     ///
-    /// [WorkOS Docs: Authenticate with code](https://workos.com/docs/reference/user-management/authentication/code)
+    /// [WorkOS Docs: Authenticate with an email verification code](https://workos.com/docs/reference/user-management/authentication/email-verification)
     ///
     /// # Examples
     ///
@@ -56,7 +54,7 @@ pub trait AuthenticateWithCode {
     /// # use std::{net::IpAddr, str::FromStr};
     ///
     /// # use workos_sdk::WorkOsResult;
-    /// # use workos_sdk::sso::{AuthorizationCode, ClientId};
+    /// # use workos_sdk::sso::ClientId;
     /// # use workos_sdk::user_management::*;
     /// use workos_sdk::{ApiKey, WorkOs};
     ///
@@ -65,11 +63,10 @@ pub trait AuthenticateWithCode {
     ///
     /// let AuthenticationResponse { user, .. } = workos
     ///     .user_management()
-    ///     .authenticate_with_code(&AuthenticateWithCodeParams {
+    ///     .authenticate_with_email_verification(&AuthenticateWithEmailVerificationParams {
     ///         client_id: &ClientId::from("client_123456789"),
-    ///         code_verifier: None,
-    ///         code: &AuthorizationCode::from("01E2RJ4C05B52KKZ8FSRDAP23J"),
-    ///         invitation_token: None,
+    ///         code: &EmailVerificationCode::from("123456"),
+    ///         pending_authentication_token: &PendingAuthenticationToken::from("ql1AJgNoLN1tb9llaQ8jyC2dn"),
     ///         ip_address: Some(&IpAddr::from_str("192.0.2.1")?),
     ///         user_agent: Some("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"),
     ///     })
@@ -77,30 +74,30 @@ pub trait AuthenticateWithCode {
     /// # Ok(())
     /// # }
     /// ```
-    async fn authenticate_with_code(
+    async fn authenticate_with_email_verification(
         &self,
-        params: &AuthenticateWithCodeParams<'_>,
+        params: &AuthenticateWithEmailVerificationParams<'_>,
     ) -> WorkOsResult<AuthenticationResponse, AuthenticateError>;
 }
 
 #[async_trait]
-impl AuthenticateWithCode for UserManagement<'_> {
-    async fn authenticate_with_code(
+impl AuthenticateWithEmailVerification for UserManagement<'_> {
+    async fn authenticate_with_email_verification(
         &self,
-        params: &AuthenticateWithCodeParams<'_>,
+        params: &AuthenticateWithEmailVerificationParams<'_>,
     ) -> WorkOsResult<AuthenticationResponse, AuthenticateError> {
         let url = self
             .workos
             .base_url()
             .join("/user_management/authenticate")?;
 
-        let body = AuthenticateWithCodeBody {
+        let body = AuthenticateWithEmailVerificationBody {
             client_secret: self.workos.key(),
-            grant_type: "authorization_code",
+            grant_type: "urn:workos:oauth:grant-type:email-verification:code",
             params,
         };
 
-        let authenticate_with_code_response = self
+        let authenticate_with_email_verification_response = self
             .workos
             .client()
             .post(url)
@@ -112,7 +109,7 @@ impl AuthenticateWithCode for UserManagement<'_> {
             .json::<AuthenticationResponse>()
             .await?;
 
-        Ok(authenticate_with_code_response)
+        Ok(authenticate_with_email_verification_response)
     }
 }
 
@@ -143,8 +140,9 @@ mod test {
             .match_body(Matcher::PartialJson(json!({
                 "client_id": "client_123456789",
                 "client_secret": "sk_example_123456789",
-                "grant_type": "authorization_code",
-                "code": "abc123",
+                "grant_type": "urn:workos:oauth:grant-type:email-verification:code",
+                "code": "123456",
+                "pending_authentication_token": "ql1AJgNoLN1tb9llaQ8jyC2dn"
             })))
             .with_status(200)
             .with_body(
@@ -164,11 +162,7 @@ mod test {
                     "organization_id": "org_01H945H0YD4F97JN9MATX7BYAG",
                     "access_token": "eyJhb.nNzb19vaWRjX2tleV9.lc5Uk4yWVk5In0",
                     "refresh_token": "yAjhKk123NLIjdrBdGZPf8pLIDvK",
-                    "authentication_method": "SSO",
-                    "impersonator": {
-                        "email": "admin@foocorp.com",
-                        "reason": "Investigating an issue with the customer's account."
-                    }
+                    "authentication_method": "Password"
                 })
                 .to_string(),
             )
@@ -177,11 +171,12 @@ mod test {
 
         let response = workos
             .user_management()
-            .authenticate_with_code(&AuthenticateWithCodeParams {
+            .authenticate_with_email_verification(&AuthenticateWithEmailVerificationParams {
                 client_id: &ClientId::from("client_123456789"),
-                code_verifier: None,
-                code: &AuthorizationCode::from("abc123"),
-                invitation_token: None,
+                code: &EmailVerificationCode::from("123456"),
+                pending_authentication_token: &PendingAuthenticationToken::from(
+                    "ql1AJgNoLN1tb9llaQ8jyC2dn",
+                ),
                 ip_address: None,
                 user_agent: None,
             })
@@ -226,11 +221,12 @@ mod test {
 
         let result = workos
             .user_management()
-            .authenticate_with_code(&AuthenticateWithCodeParams {
+            .authenticate_with_email_verification(&AuthenticateWithEmailVerificationParams {
                 client_id: &ClientId::from("client_123456789"),
-                code_verifier: None,
-                code: &AuthorizationCode::from("abc123"),
-                invitation_token: None,
+                code: &EmailVerificationCode::from("123456"),
+                pending_authentication_token: &PendingAuthenticationToken::from(
+                    "ql1AJgNoLN1tb9llaQ8jyC2dn",
+                ),
                 ip_address: None,
                 user_agent: None,
             })
@@ -263,11 +259,12 @@ mod test {
 
         let result = workos
             .user_management()
-            .authenticate_with_code(&AuthenticateWithCodeParams {
+            .authenticate_with_email_verification(&AuthenticateWithEmailVerificationParams {
                 client_id: &ClientId::from("client_123456789"),
-                code_verifier: None,
-                code: &AuthorizationCode::from("abc123"),
-                invitation_token: None,
+                code: &EmailVerificationCode::from("123456"),
+                pending_authentication_token: &PendingAuthenticationToken::from(
+                    "ql1AJgNoLN1tb9llaQ8jyC2dn",
+                ),
                 ip_address: None,
                 user_agent: None,
             })
@@ -291,7 +288,7 @@ mod test {
             .with_body(
                 json!({
                     "error": "invalid_grant",
-                    "error_description": "The code 'abc123' has expired or is invalid."
+                    "error_description": "The code '123456' has expired or is invalid."
                 })
                 .to_string(),
             )
@@ -300,11 +297,12 @@ mod test {
 
         let result = workos
             .user_management()
-            .authenticate_with_code(&AuthenticateWithCodeParams {
+            .authenticate_with_email_verification(&AuthenticateWithEmailVerificationParams {
                 client_id: &ClientId::from("client_123456789"),
-                code_verifier: None,
-                code: &AuthorizationCode::from("abc123"),
-                invitation_token: None,
+                code: &EmailVerificationCode::from("123456"),
+                pending_authentication_token: &PendingAuthenticationToken::from(
+                    "ql1AJgNoLN1tb9llaQ8jyC2dn",
+                ),
                 ip_address: None,
                 user_agent: None,
             })
@@ -314,10 +312,10 @@ mod test {
             assert_eq!(error.code, "invalid_grant");
             assert_eq!(
                 error.message,
-                "The code 'abc123' has expired or is invalid."
+                "The code '123456' has expired or is invalid."
             );
         } else {
-            panic!("expected authenticate_with_code to return an error")
+            panic!("expected authenticate_with_email_verification to return an error")
         }
     }
 }

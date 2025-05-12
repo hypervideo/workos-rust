@@ -31,7 +31,10 @@ pub struct AuthenticateWithMagicAuthParams<'a> {
 
 #[derive(Serialize)]
 struct AuthenticateWithMagicAuthBody<'a> {
+    /// Authenticates the application making the request to the WorkOS server.
     client_secret: &'a ApiKey,
+
+    /// A string constant that distinguishes the method by which your application will receive an access token.
     grant_type: &'a str,
 
     #[serde(flatten)]
@@ -41,7 +44,7 @@ struct AuthenticateWithMagicAuthBody<'a> {
 /// [WorkOS Docs: Authenticate with Magic Auth](https://workos.com/docs/reference/user-management/authentication/magic-auth)
 #[async_trait]
 pub trait AuthenticateWithMagicAuth {
-    /// Authenticates a user by verifying the Magic Auth code sent to the user’s email.
+    /// Authenticates a user by verifying the Magic Auth code sent to the user's email.
     ///
     /// [WorkOS Docs: Authenticate with Magic Auth](https://workos.com/docs/reference/user-management/authentication/magic-auth)
     ///

@@ -32,7 +32,10 @@ pub struct AuthenticateWithRefreshTokenParams<'a> {
 
 #[derive(Serialize)]
 struct AuthenticateWithRefreshTokenBody<'a> {
+    /// Authenticates the application making the request to the WorkOS server.
     client_secret: &'a ApiKey,
+
+    /// A string constant that distinguishes the method by which your application will receive an access token.
     grant_type: &'a str,
 
     #[serde(flatten)]
