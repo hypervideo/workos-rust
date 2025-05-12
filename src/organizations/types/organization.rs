@@ -10,6 +10,16 @@ use crate::Timestamps;
 #[from(forward)]
 pub struct OrganizationId(String);
 
+/// The ID and name of an [`Organization`].
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+pub struct OrganizationIdAndName {
+    /// The ID of the organization.
+    pub id: OrganizationId,
+
+    /// The name of the organization.
+    pub name: String,
+}
+
 /// [WorkOS Docs: Organization](https://workos.com/docs/reference/organization)
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Organization {
