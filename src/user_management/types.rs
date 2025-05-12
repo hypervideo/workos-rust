@@ -1,9 +1,11 @@
 mod authenticate_error;
 mod authentication_response;
+mod email_verification;
 mod identity;
 mod impersonator;
 mod magic_auth;
 mod password;
+mod pending_authentication_token;
 mod provider;
 mod refresh_token;
 mod session_id;
@@ -11,10 +13,12 @@ mod user;
 
 pub use authenticate_error::*;
 pub use authentication_response::*;
+pub use email_verification::*;
 pub use identity::*;
 pub use impersonator::*;
 pub use magic_auth::*;
 pub use password::*;
+pub use pending_authentication_token::*;
 pub use provider::*;
 pub use refresh_token::*;
 pub use session_id::*;
