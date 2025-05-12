@@ -124,7 +124,7 @@ mod test {
     use tokio;
 
     use crate::sso::AccessToken;
-    use crate::user_management::{AuthenticateErrorWithError, RefreshToken, UserId};
+    use crate::user_management::{RefreshToken, UserId};
     use crate::{ApiKey, WorkOs, WorkOsError};
 
     use super::*;
@@ -310,16 +310,10 @@ mod test {
             })
             .await;
 
-        if let Err(WorkOsError::Operation(AuthenticateError::WithError(
-            AuthenticateErrorWithError::Other {
-                error,
-                error_description,
-            },
-        ))) = result
-        {
-            assert_eq!(error, "invalid_grant");
+        if let Err(WorkOsError::Operation(AuthenticateError::WithError(error))) = result {
+            assert_eq!(error.error(), "invalid_grant");
             assert_eq!(
-                error_description,
+                error.error_description(),
                 "The code 'abc123' has expired or is invalid."
             );
         } else {

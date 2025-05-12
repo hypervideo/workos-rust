@@ -111,6 +111,34 @@ pub enum AuthenticateErrorWithCode {
     },
 }
 
+impl AuthenticateErrorWithCode {
+    /// The string constant that distinguishes the error type.
+    pub fn code(&self) -> &str {
+        match self {
+            AuthenticateErrorWithCode::EmailVerificationRequired { .. } => {
+                "email_verification_requried"
+            }
+            AuthenticateErrorWithCode::MfaEnrollment { .. } => "mfa_enrollment",
+            AuthenticateErrorWithCode::MfaChallenge { .. } => "mfa_challenge",
+            AuthenticateErrorWithCode::OrganizationSelectionRequired { .. } => {
+                "organization_selection_required"
+            }
+            AuthenticateErrorWithCode::Other { code, .. } => code,
+        }
+    }
+
+    /// The human-readable message describing the error.
+    pub fn message(&self) -> &str {
+        match self {
+            AuthenticateErrorWithCode::EmailVerificationRequired { message, .. } => message,
+            AuthenticateErrorWithCode::MfaEnrollment { message, .. } => message,
+            AuthenticateErrorWithCode::MfaChallenge { message, .. } => message,
+            AuthenticateErrorWithCode::OrganizationSelectionRequired { message, .. } => message,
+            AuthenticateErrorWithCode::Other { message, .. } => message,
+        }
+    }
+}
+
 /// An error returned from authenticate requests tagged by an `error` field.
 #[derive(Debug, Deserialize, Error)]
 #[serde(tag = "code", rename_all = "snake_case")]
@@ -164,6 +192,35 @@ pub enum AuthenticateErrorWithError {
         /// A human-readable message describing the error.
         error_description: String,
     },
+}
+
+impl AuthenticateErrorWithError {
+    /// The string constant that distinguishes the error type.
+    pub fn error(&self) -> &str {
+        match self {
+            AuthenticateErrorWithError::SsoRequired { .. } => "sso_required",
+            AuthenticateErrorWithError::OrganizationAuthenticationMethodsRequired { .. } => {
+                "organization_authentication_methods_required"
+            }
+            AuthenticateErrorWithError::Other { error, .. } => error,
+        }
+    }
+
+    /// The human-readable message describing the error.
+    pub fn error_description(&self) -> &str {
+        match self {
+            AuthenticateErrorWithError::SsoRequired {
+                error_description, ..
+            } => error_description,
+            AuthenticateErrorWithError::OrganizationAuthenticationMethodsRequired {
+                error_description,
+                ..
+            } => error_description,
+            AuthenticateErrorWithError::Other {
+                error_description, ..
+            } => error_description,
+        }
+    }
 }
 
 #[async_trait]
