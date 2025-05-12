@@ -21,7 +21,7 @@ pub struct CreateUserParams<'a> {
     /// The last name of the user.
     pub last_name: Option<&'a str>,
 
-    /// Whether the user’s email address was previously verified.
+    /// Whether the user's email address was previously verified.
     pub email_verified: Option<bool>,
 
     /// The external ID of the user.
