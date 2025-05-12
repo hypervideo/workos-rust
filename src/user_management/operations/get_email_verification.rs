@@ -1,25 +1,25 @@
 use async_trait::async_trait;
 use thiserror::Error;
 
-use crate::user_management::{MagicAuth, MagicAuthId, UserManagement};
+use crate::user_management::{EmailVerification, EmailVerificationId, UserManagement};
 use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
-/// An error returned from [`GetMagicAuth`].
+/// An error returned from [`GetEmailVerification`].
 #[derive(Debug, Error)]
-pub enum GetMagicAuthError {}
+pub enum GetEmailVerificationError {}
 
-impl From<GetMagicAuthError> for WorkOsError<GetMagicAuthError> {
-    fn from(err: GetMagicAuthError) -> Self {
+impl From<GetEmailVerificationError> for WorkOsError<GetEmailVerificationError> {
+    fn from(err: GetEmailVerificationError) -> Self {
         Self::Operation(err)
     }
 }
 
-/// [WorkOS Docs: Get a Magic Auth code](https://workos.com/docs/reference/user-management/magic-auth/get)
+/// [WorkOS Docs: Get an email verification code](https://workos.com/docs/reference/user-management/email-verification/get)
 #[async_trait]
-pub trait GetMagicAuth {
-    /// Retrieves an [`MagicAuth`] by its ID.
+pub trait GetEmailVerification {
+    /// Retrieves an [`EmailVerification`] by its ID.
     ///
-    /// [WorkOS Docs: Get a Magic Auth code](https://workos.com/docs/reference/user-management/magic-auth/get)
+    /// [WorkOS Docs: Get an email verification code](https://workos.com/docs/reference/user-management/email-verification/get)
     ///
     /// # Examples
     ///
@@ -28,26 +28,32 @@ pub trait GetMagicAuth {
     /// # use workos_sdk::user_management::*;
     /// use workos_sdk::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), GetMagicAuthError> {
+    /// # async fn run() -> WorkOsResult<(), GetEmailVerificationError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let organization = workos
     ///     .user_management()
-    ///     .get_magic_auth(&MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5"))
+    ///     .get_email_verification(&EmailVerificationId::from("email_verification_01HYGGEB6FYMWQNWF3XDZG7VV3"))
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    async fn get_magic_auth(&self, id: &MagicAuthId) -> WorkOsResult<MagicAuth, GetMagicAuthError>;
+    async fn get_email_verification(
+        &self,
+        id: &EmailVerificationId,
+    ) -> WorkOsResult<EmailVerification, GetEmailVerificationError>;
 }
 
 #[async_trait]
-impl GetMagicAuth for UserManagement<'_> {
-    async fn get_magic_auth(&self, id: &MagicAuthId) -> WorkOsResult<MagicAuth, GetMagicAuthError> {
-        let url = self
-            .workos
-            .base_url()
-            .join(&format!("/user_management/magic_auth/{id}", id = id))?;
+impl GetEmailVerification for UserManagement<'_> {
+    async fn get_email_verification(
+        &self,
+        id: &EmailVerificationId,
+    ) -> WorkOsResult<EmailVerification, GetEmailVerificationError> {
+        let url = self.workos.base_url().join(&format!(
+            "/user_management/email_verification/{id}",
+            id = id
+        ))?;
         let organization = self
             .workos
             .client()
@@ -56,7 +62,7 @@ impl GetMagicAuth for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<MagicAuth>()
+            .json::<EmailVerification>()
             .await?;
 
         Ok(organization)
@@ -73,7 +79,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn it_calls_the_get_magic_auth_endpoint() {
+    async fn it_calls_the_get_email_verification_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
@@ -84,13 +90,13 @@ mod test {
         server
             .mock(
                 "GET",
-                "/user_management/magic_auth/magic_auth_01E4ZCR3C56J083X43JQXF3JK5",
+                "/user_management/email_verification/email_verification_01HYGGEB6FYMWQNWF3XDZG7VV3",
             )
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
                 json!({
-                    "id": "magic_auth_01E4ZCR3C56J083X43JQXF3JK5",
+                    "id": "email_verification_01HYGGEB6FYMWQNWF3XDZG7VV3",
                     "user_id": "user_01HWWYEH2NPT48X82ZT23K5AX4",
                     "email": "marcelina.davis@example.com",
                     "expires_at": "2021-07-01T19:07:33.155Z",
@@ -105,13 +111,15 @@ mod test {
 
         let organization = workos
             .user_management()
-            .get_magic_auth(&MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5"))
+            .get_email_verification(&EmailVerificationId::from(
+                "email_verification_01HYGGEB6FYMWQNWF3XDZG7VV3",
+            ))
             .await
             .unwrap();
 
         assert_eq!(
             organization.id,
-            MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5")
+            EmailVerificationId::from("email_verification_01HYGGEB6FYMWQNWF3XDZG7VV3")
         )
     }
 }
