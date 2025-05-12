@@ -1,8 +1,8 @@
-# workos
+# WorkOS Rust SDK
 
-[![Crates.io](https://img.shields.io/crates/v/workos.svg)](https://crates.io/crates/workos)
-[![Docs.rs](https://docs.rs/workos/badge.svg)](https://docs.rs/workos/)
-[![Crates.io](https://img.shields.io/crates/l/workos.svg)](https://github.com/workos/workos-rust/blob/master/LICENSE)
+<!-- [![Crates.io](https://img.shields.io/crates/v/workos-sdk.svg)](https://crates.io/crates/workos-sdk)
+[![Docs.rs](https://docs.rs/workos-sdk/badge.svg)](https://docs.rs/workos-sdk/)
+[![Crates.io](https://img.shields.io/crates/l/workos-sdk.svg)](https://github.com/hypervideo/workos-rust/blob/master/LICENSE) -->
 
 > **Note:** this an experimental SDK and breaking changes may occur. We don't recommend using this in production since we can't guarantee its stability.
 

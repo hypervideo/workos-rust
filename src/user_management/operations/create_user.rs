@@ -53,9 +53,9 @@ pub trait CreateUser {
     /// ```
     /// use std::collections::HashSet;
     ///
-    /// # use workos::WorkOsResult;
-    /// # use workos::user_management::*;
-    /// use workos::{ApiKey, WorkOs};
+    /// # use workos_sdk::WorkOsResult;
+    /// # use workos_sdk::user_management::*;
+    /// use workos_sdk::{ApiKey, WorkOs};
     ///
     /// # async fn run() -> WorkOsResult<(), CreateUserError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
