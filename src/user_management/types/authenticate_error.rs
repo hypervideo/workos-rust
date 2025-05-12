@@ -3,19 +3,167 @@ use reqwest::{Response, StatusCode};
 use serde::Deserialize;
 use thiserror::Error;
 
-use crate::{WorkOsError, WorkOsResult};
+use crate::{organizations::OrganizationIdAndName, sso::ConnectionId, WorkOsError, WorkOsResult};
+
+use super::{
+    AuthenticateMethods, AuthenticationFactorIdAndType, EmailVerificationId,
+    PendingAuthenticationToken, User,
+};
 
 /// An error returned from authenticate requests.
 #[derive(Debug, Deserialize, Error)]
-#[error("{code}: {message}")]
-pub struct AuthenticateError {
-    #[serde(alias = "error")]
-    /// The error code of the error that occured.
-    pub code: String,
+#[error(transparent)]
+#[serde(untagged)]
+pub enum AuthenticateError {
+    /// Error tagged with a `code` field.
+    WithCode(AuthenticateErrorWithCode),
 
-    /// The description of the error.
-    #[serde(alias = "error_description")]
-    pub message: String,
+    /// Error tagged with an `error` field.
+    WithError(AuthenticateErrorWithError),
+}
+
+/// An error returned from authenticate requests tagged with a `code` field.
+#[derive(Debug, Deserialize, Error)]
+#[serde(tag = "code", rename_all = "snake_case")]
+pub enum AuthenticateErrorWithCode {
+    /// Email verification required error.
+    ///
+    /// This error indicates that a user with an unverified email address attempted to authenticate in an environment where email verification is required.
+    /// It includes a pending authentication token that should be used to complete the authentication.
+    #[error("email_verification_required: {message}")]
+    EmailVerificationRequired {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// A token that should be used to complete the authentication with a corresponding method after this error occurs.
+        pending_authentication_token: PendingAuthenticationToken,
+
+        ///The email address of the user.
+        email: String,
+
+        /// The unique ID of the email verification code.
+        email_verification_id: EmailVerificationId,
+    },
+
+    /// MFA enrollment error
+    ///
+    /// This error indicates that a user who is not enrolled into MFA attempted to authenticate in an environment where MFA is required.
+    /// It includes a pending authentication token that should be used to authenticate the user once they enroll into MFA.
+    #[error("mfa_enrollment: {message}")]
+    MfaEnrollment {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// A token that should be used to complete the authentication with a corresponding method after this error occurs.
+        pending_authentication_token: PendingAuthenticationToken,
+
+        /// The corresponding user object.
+        user: Box<User>,
+    },
+
+    /// MFA challenge error
+    ///
+    /// This error indicates that a user enrolled into MFA attempted to authenticate in an environment where MFA is required.
+    /// It includes a pending authentication token and a list of factors that the user is enrolled in that should be used to complete the authentication.
+    #[error("mfa_challenge: {message}")]
+    MfaChallenge {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// A token that should be used to complete the authentication with a corresponding method after this error occurs.
+        pending_authentication_token: PendingAuthenticationToken,
+
+        /// IDs and types of the factors the user is enrolled in.
+        authentication_factors: Vec<AuthenticationFactorIdAndType>,
+
+        /// The corresponding user object.
+        user: Box<User>,
+    },
+
+    /// Organization selection required error
+    ///
+    /// This error indicates that the user is a member of multiple organizations and must select which organization to sign in to.
+    /// It includes a list of organizations the user is a member of and a pending authentication token that should be used to complete the authentication.
+    #[error("organization_selection_required: {message}")]
+    OrganizationSelectionRequired {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// A token that should be used to complete the authentication with a corresponding method after this error occurs.
+        pending_authentication_token: PendingAuthenticationToken,
+
+        /// The corresponding user object.
+        user: Box<User>,
+
+        /// IDs and names of the organizations the user is a member of.
+        organizations: Vec<OrganizationIdAndName>,
+    },
+
+    /// Other error.
+    #[error("{code}: {message}")]
+    #[serde(untagged)]
+    Other {
+        /// A string constant that distinguishes the error type.
+        code: String,
+
+        /// A human-readable message describing the error.
+        message: String,
+    },
+}
+
+/// An error returned from authenticate requests tagged by an `error` field.
+#[derive(Debug, Deserialize, Error)]
+#[serde(tag = "code", rename_all = "snake_case")]
+pub enum AuthenticateErrorWithError {
+    /// SSO required error
+    ///
+    /// This error indicates that a user attempted to authenticate into an organization that requires SSO using a different authentication method.
+    /// It includes a list of SSO connections that may be used to complete the authentication.
+    #[error("sso_required: {error_description}")]
+    SsoRequired {
+        /// A human-readable message describing the error.
+        error_description: String,
+
+        /// The email of the authenticating user.
+        email: String,
+
+        /// A list of SSO connection IDs that the user is required to authenticate with. One of these connections must be used.
+        sso_connection_ids: Vec<ConnectionId>,
+
+        /// A token that should be used to complete the authentication with the authorization_code grant type after this error occurs.
+        /// This may be null, which indicates that no pending authentication token needs to be passed to the authenticate call.
+        pending_authentication_token: Option<PendingAuthenticationToken>,
+    },
+
+    /// Organization authentication required error
+    ///
+    /// This error indicates that a user attempted to authenticate with an authentication method that is not allowed by the organization that has a domain policy managing this user.
+    /// It includes all the possible methods the user can use to authenticate.
+    #[error("organization_authentication_methods_required: {error_description}")]
+    OrganizationAuthenticationMethodsRequired {
+        /// A human-readable message describing the error.
+        error_description: String,
+
+        /// The email of the authenticating user.
+        email: String,
+
+        /// A list of SSO connection IDs that the user is required to authenticate with. One of these connections must be used.
+        sso_connection_ids: Vec<ConnectionId>,
+
+        /// Possible methods the user can use to authenticate.
+        authenticate_methods: AuthenticateMethods,
+    },
+
+    /// Other error.
+    #[error("{error}: {error_description}")]
+    #[serde(untagged)]
+    Other {
+        /// A string constant that distinguishes the error type.
+        error: String,
+
+        /// A human-readable message describing the error.
+        error_description: String,
+    },
 }
 
 #[async_trait]
@@ -33,17 +181,23 @@ impl HandleAuthenticateError for Response {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) => {
-                    let error = self.json::<AuthenticateError>().await?;
+                    let authenticate_error = self.json::<AuthenticateError>().await?;
 
-                    Err(match error.code.as_str() {
-                        "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
-                        _ => WorkOsError::Operation(error),
+                    Err(match &authenticate_error {
+                        AuthenticateError::WithError(AuthenticateErrorWithError::Other {
+                            error,
+                            ..
+                        }) => match error.as_str() {
+                            "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
+                            _ => WorkOsError::Operation(authenticate_error),
+                        },
+                        _ => WorkOsError::Operation(authenticate_error),
                     })
                 }
                 Some(StatusCode::FORBIDDEN) => {
-                    let error = self.json::<AuthenticateError>().await?;
+                    let authenticate_error = self.json::<AuthenticateError>().await?;
 
-                    Err(WorkOsError::Operation(error))
+                    Err(WorkOsError::Operation(authenticate_error))
                 }
                 _ => Err(WorkOsError::RequestError(err)),
             },

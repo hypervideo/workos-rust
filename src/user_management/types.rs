@@ -1,4 +1,6 @@
 mod authenticate_error;
+mod authenticate_methods;
+mod authentication_factor;
 mod authentication_response;
 mod email_verification;
 mod identity;
@@ -12,6 +14,8 @@ mod session_id;
 mod user;
 
 pub use authenticate_error::*;
+pub use authenticate_methods::*;
+pub use authentication_factor::*;
 pub use authentication_response::*;
 pub use email_verification::*;
 pub use identity::*;

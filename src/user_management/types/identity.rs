@@ -10,7 +10,7 @@ use super::OauthProvider;
 #[from(forward)]
 pub struct IdentityId(String);
 
-/// he type of the identity.
+/// The type of the identity.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum IdentityType {
