@@ -8,6 +8,7 @@ mod get_authorization_url;
 mod get_jwks;
 mod get_jwks_url;
 mod get_logout_url;
+mod get_magic_auth;
 mod get_user_identities;
 mod list_users;
 
@@ -21,5 +22,6 @@ pub use get_authorization_url::*;
 pub use get_jwks::*;
 pub use get_jwks_url::*;
 pub use get_logout_url::*;
+pub use get_magic_auth::*;
 pub use get_user_identities::*;
 pub use list_users::*;
