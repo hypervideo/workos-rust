@@ -1,4 +1,5 @@
 mod authenticate_with_code;
+mod authenticate_with_magic_auth;
 mod authenticate_with_password;
 mod authenticate_with_refresh_token;
 mod create_user;
@@ -10,6 +11,7 @@ mod get_user_identities;
 mod list_users;
 
 pub use authenticate_with_code::*;
+pub use authenticate_with_magic_auth::*;
 pub use authenticate_with_password::*;
 pub use authenticate_with_refresh_token::*;
 pub use create_user::*;
