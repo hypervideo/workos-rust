@@ -45,6 +45,20 @@ pub enum AuthenticateErrorWithCode {
         email_verification_id: EmailVerificationId,
     },
 
+    /// Invalid credentials error.
+    #[error("invalid_credentials: {message}")]
+    InvalidCredentials {
+        /// A human-readable message describing the error.
+        message: String,
+    },
+
+    /// Invalid one-time code error.
+    #[error("invalid_one_time_code: {message}")]
+    InvalidOneTimeCode {
+        /// A human-readable message describing the error.
+        message: String,
+    },
+
     /// MFA enrollment error
     ///
     /// This error indicates that a user who is not enrolled into MFA attempted to authenticate in an environment where MFA is required.
@@ -78,6 +92,13 @@ pub enum AuthenticateErrorWithCode {
 
         /// The corresponding user object.
         user: Box<User>,
+    },
+
+    /// One-time code expired error
+    #[error("one_time_code_expired: {message}")]
+    OneTimeCodeExpired {
+        /// A human-readable message describing the error.
+        message: String,
     },
 
     /// Organization selection required error
@@ -118,8 +139,11 @@ impl AuthenticateErrorWithCode {
             AuthenticateErrorWithCode::EmailVerificationRequired { .. } => {
                 "email_verification_requried"
             }
+            AuthenticateErrorWithCode::InvalidCredentials { .. } => "invalid_credentials",
+            AuthenticateErrorWithCode::InvalidOneTimeCode { .. } => "invalid_one_time_code",
             AuthenticateErrorWithCode::MfaEnrollment { .. } => "mfa_enrollment",
             AuthenticateErrorWithCode::MfaChallenge { .. } => "mfa_challenge",
+            AuthenticateErrorWithCode::OneTimeCodeExpired { .. } => "one_time_code_expired",
             AuthenticateErrorWithCode::OrganizationSelectionRequired { .. } => {
                 "organization_selection_required"
             }
@@ -131,8 +155,11 @@ impl AuthenticateErrorWithCode {
     pub fn message(&self) -> &str {
         match self {
             AuthenticateErrorWithCode::EmailVerificationRequired { message, .. } => message,
+            AuthenticateErrorWithCode::InvalidCredentials { message } => message,
+            AuthenticateErrorWithCode::InvalidOneTimeCode { message } => message,
             AuthenticateErrorWithCode::MfaEnrollment { message, .. } => message,
             AuthenticateErrorWithCode::MfaChallenge { message, .. } => message,
+            AuthenticateErrorWithCode::OneTimeCodeExpired { message } => message,
             AuthenticateErrorWithCode::OrganizationSelectionRequired { message, .. } => message,
             AuthenticateErrorWithCode::Other { message, .. } => message,
         }
