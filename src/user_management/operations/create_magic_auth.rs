@@ -44,7 +44,7 @@ pub trait CreateMagicAuth {
     /// # async fn run() -> WorkOsResult<(), CreateMagicAuthError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
-    /// let user = workos
+    /// let magic_auth = workos
     ///     .user_management()
     ///     .create_magic_auth(&CreateMagicAuthParams {
     ///          email: "marcelina@example.com",
