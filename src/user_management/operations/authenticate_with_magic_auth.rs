@@ -19,6 +19,9 @@ pub struct AuthenticateWithMagicAuthParams<'a> {
     /// The one-time code that was emailed to the user.
     pub code: &'a MagicAuthCode,
 
+    /// The email address of the user.
+    pub email: &'a str,
+
     /// The token of an invitation.
     pub invitation_token: Option<&'a str>,
 
@@ -66,6 +69,7 @@ pub trait AuthenticateWithMagicAuth {
     ///     .authenticate_with_magic_auth(&AuthenticateWithMagicAuthParams {
     ///         client_id: &ClientId::from("client_123456789"),
     ///         code: &MagicAuthCode::from("123456"),
+    ///         email: "marcelina.davis@example.com",
     ///         invitation_token: None,
     ///         ip_address: Some(&IpAddr::from_str("192.0.2.1")?),
     ///         user_agent: Some("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"),
@@ -142,6 +146,7 @@ mod test {
                 "client_secret": "sk_example_123456789",
                 "grant_type": "urn:workos:oauth:grant-type:magic-auth:code",
                 "code": "123456",
+                "email": "marcelina.davis@example.com"
             })))
             .with_status(200)
             .with_body(
@@ -173,6 +178,7 @@ mod test {
             .authenticate_with_magic_auth(&AuthenticateWithMagicAuthParams {
                 client_id: &ClientId::from("client_123456789"),
                 code: &MagicAuthCode::from("123456"),
+                email: "marcelina.davis@example.com",
                 invitation_token: None,
                 ip_address: None,
                 user_agent: None,
@@ -221,6 +227,7 @@ mod test {
             .authenticate_with_magic_auth(&AuthenticateWithMagicAuthParams {
                 client_id: &ClientId::from("client_123456789"),
                 code: &MagicAuthCode::from("123456"),
+                email: "marcelina.davis@example.com",
                 invitation_token: None,
                 ip_address: None,
                 user_agent: None,
@@ -257,6 +264,7 @@ mod test {
             .authenticate_with_magic_auth(&AuthenticateWithMagicAuthParams {
                 client_id: &ClientId::from("client_123456789"),
                 code: &MagicAuthCode::from("123456"),
+                email: "marcelina.davis@example.com",
                 invitation_token: None,
                 ip_address: None,
                 user_agent: None,
@@ -293,6 +301,7 @@ mod test {
             .authenticate_with_magic_auth(&AuthenticateWithMagicAuthParams {
                 client_id: &ClientId::from("client_123456789"),
                 code: &MagicAuthCode::from("123456"),
+                email: "marcelina.davis@example.com",
                 invitation_token: None,
                 ip_address: None,
                 user_agent: None,
