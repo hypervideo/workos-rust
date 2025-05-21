@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use serde::Serialize;
+use reqwest::{Response, StatusCode};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::user_management::{PasswordResetToken, User, UserManagement};
@@ -16,12 +17,80 @@ pub struct ResetPasswordParams<'a> {
 }
 
 /// An error returned from [`ResetPassword`].
-#[derive(Debug, Error)]
-pub enum ResetPasswordError {}
+#[derive(Debug, Error, Deserialize)]
+#[serde(tag = "code", rename_all = "snake_case")]
+pub enum ResetPasswordError {
+    /// Password reset token not found error.
+    #[error("password_reset_token_not_found: {message}")]
+    PasswordResetTokenNotFound {
+        /// A human-readable message describing the error.
+        message: String,
+    },
+
+    /// Password reset error.
+    #[error("password_reset_error: {message}")]
+    PasswordResetError {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// List of errors.
+        errors: Vec<PasswordResetError>,
+    },
+}
 
 impl From<ResetPasswordError> for WorkOsError<ResetPasswordError> {
     fn from(err: ResetPasswordError) -> Self {
         Self::Operation(err)
+    }
+}
+
+/// Password reset error.
+#[derive(Debug, Error, Deserialize, Serialize)]
+#[serde(tag = "code", rename_all = "snake_case")]
+pub enum PasswordResetError {
+    /// Password reset token expired error.
+    #[error("password_reset_token_expired: {message}")]
+    PasswordResetTokenExpired {
+        /// A human-readable message describing the error.
+        message: String,
+    },
+
+    /// Password too weak error.
+    #[error("password_too_weak: {message}")]
+    PasswordTooWeak {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// Human-readable suggestions.
+        suggestions: Vec<String>,
+
+        /// A human-readable warning.
+        warning: String,
+    },
+}
+
+#[async_trait]
+pub(crate) trait HandleResetPasswordError
+where
+    Self: Sized,
+{
+    async fn handle_reset_password_error(self) -> WorkOsResult<Self, ResetPasswordError>;
+}
+
+#[async_trait]
+impl HandleResetPasswordError for Response {
+    async fn handle_reset_password_error(self) -> WorkOsResult<Self, ResetPasswordError> {
+        match self.error_for_status_ref() {
+            Ok(_) => Ok(self),
+            Err(err) => match err.status() {
+                Some(StatusCode::BAD_REQUEST) | Some(StatusCode::NOT_FOUND) => {
+                    let error = self.json::<ResetPasswordError>().await?;
+
+                    Err(WorkOsError::Operation(error))
+                }
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
     }
 }
 
@@ -79,7 +148,9 @@ impl ResetPassword for UserManagement<'_> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?
+            .handle_unauthorized_error()?
+            .handle_reset_password_error()
+            .await?
             .json::<User>()
             .await?;
 
