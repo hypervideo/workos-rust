@@ -15,6 +15,7 @@ mod get_magic_auth;
 mod get_password_reset;
 mod get_user_identities;
 mod list_users;
+mod reset_password;
 
 pub use authenticate_with_code::*;
 pub use authenticate_with_email_verification::*;
@@ -33,3 +34,4 @@ pub use get_magic_auth::*;
 pub use get_password_reset::*;
 pub use get_user_identities::*;
 pub use list_users::*;
+pub use reset_password::*;
