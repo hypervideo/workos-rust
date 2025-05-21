@@ -1,25 +1,25 @@
 use async_trait::async_trait;
 use thiserror::Error;
 
-use crate::user_management::{MagicAuth, MagicAuthId, UserManagement};
+use crate::user_management::{PasswordReset, PasswordResetId, UserManagement};
 use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
-/// An error returned from [`GetMagicAuth`].
+/// An error returned from [`GetPasswordReset`].
 #[derive(Debug, Error)]
-pub enum GetMagicAuthError {}
+pub enum GetPasswordResetError {}
 
-impl From<GetMagicAuthError> for WorkOsError<GetMagicAuthError> {
-    fn from(err: GetMagicAuthError) -> Self {
+impl From<GetPasswordResetError> for WorkOsError<GetPasswordResetError> {
+    fn from(err: GetPasswordResetError) -> Self {
         Self::Operation(err)
     }
 }
 
-/// [WorkOS Docs: Get a Magic Auth code](https://workos.com/docs/reference/user-management/magic-auth/get)
+/// [WorkOS Docs: Get a password reset token](https://workos.com/docs/reference/user-management/password-reset/get)
 #[async_trait]
-pub trait GetMagicAuth {
-    /// Get the details of an existing Magic Auth code that can be used to send an email to a user for authentication.
+pub trait GetPasswordReset {
+    /// Get the details of an existing password reset token that can be used to reset a user's password.
     ///
-    /// [WorkOS Docs: Get a Magic Auth code](https://workos.com/docs/reference/user-management/magic-auth/get)
+    /// [WorkOS Docs: Get a password reset token](https://workos.com/docs/reference/user-management/password-reset/get)
     ///
     /// # Examples
     ///
@@ -28,26 +28,32 @@ pub trait GetMagicAuth {
     /// # use workos_sdk::user_management::*;
     /// use workos_sdk::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), GetMagicAuthError> {
+    /// # async fn run() -> WorkOsResult<(), GetPasswordResetError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
-    /// let magic_auth = workos
+    /// let password_reset = workos
     ///     .user_management()
-    ///     .get_magic_auth(&MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5"))
+    ///     .get_password_reset(&PasswordResetId::from("password_reset_01E4ZCR3C56J083X43JQXF3JK5"))
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    async fn get_magic_auth(&self, id: &MagicAuthId) -> WorkOsResult<MagicAuth, GetMagicAuthError>;
+    async fn get_password_reset(
+        &self,
+        id: &PasswordResetId,
+    ) -> WorkOsResult<PasswordReset, GetPasswordResetError>;
 }
 
 #[async_trait]
-impl GetMagicAuth for UserManagement<'_> {
-    async fn get_magic_auth(&self, id: &MagicAuthId) -> WorkOsResult<MagicAuth, GetMagicAuthError> {
+impl GetPasswordReset for UserManagement<'_> {
+    async fn get_password_reset(
+        &self,
+        id: &PasswordResetId,
+    ) -> WorkOsResult<PasswordReset, GetPasswordResetError> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/user_management/magic_auth/{id}"))?;
+            .join(&format!("/user_management/password_reset/{id}"))?;
         let organization = self
             .workos
             .client()
@@ -56,7 +62,7 @@ impl GetMagicAuth for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<MagicAuth>()
+            .json::<PasswordReset>()
             .await?;
 
         Ok(organization)
@@ -73,7 +79,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn it_calls_the_get_magic_auth_endpoint() {
+    async fn it_calls_the_get_password_reset_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
@@ -84,19 +90,19 @@ mod test {
         server
             .mock(
                 "GET",
-                "/user_management/magic_auth/magic_auth_01E4ZCR3C56J083X43JQXF3JK5",
+                "/user_management/password_reset/password_reset_01HYGDNK5G7FZ4YJFXYXPB5JRW",
             )
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
                 json!({
-                    "id": "magic_auth_01E4ZCR3C56J083X43JQXF3JK5",
+                    "id": "password_reset_01HYGDNK5G7FZ4YJFXYXPB5JRW",
                     "user_id": "user_01HWWYEH2NPT48X82ZT23K5AX4",
                     "email": "marcelina.davis@example.com",
+                    "password_reset_token": "Z1uX3RbwcIl5fIGJJJCXXisdI",
+                    "password_reset_url": "https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI",
                     "expires_at": "2021-07-01T19:07:33.155Z",
-                    "code": "123456",
-                    "created_at": "2021-06-25T19:07:33.155Z",
-                    "updated_at": "2021-06-25T19:07:33.155Z"
+                    "created_at": "2021-06-25T19:07:33.155Z"
                 })
                 .to_string(),
             )
@@ -105,13 +111,15 @@ mod test {
 
         let organization = workos
             .user_management()
-            .get_magic_auth(&MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5"))
+            .get_password_reset(&PasswordResetId::from(
+                "password_reset_01HYGDNK5G7FZ4YJFXYXPB5JRW",
+            ))
             .await
             .unwrap();
 
         assert_eq!(
             organization.id,
-            MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5")
+            PasswordResetId::from("password_reset_01HYGDNK5G7FZ4YJFXYXPB5JRW")
         )
     }
 }

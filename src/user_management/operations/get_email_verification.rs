@@ -17,7 +17,7 @@ impl From<GetEmailVerificationError> for WorkOsError<GetEmailVerificationError> 
 /// [WorkOS Docs: Get an email verification code](https://workos.com/docs/reference/user-management/email-verification/get)
 #[async_trait]
 pub trait GetEmailVerification {
-    /// Retrieves an [`EmailVerification`] by its ID.
+    /// Get the details of an existing email verification code that can be used to send an email to a user for verification.
     ///
     /// [WorkOS Docs: Get an email verification code](https://workos.com/docs/reference/user-management/email-verification/get)
     ///
@@ -50,10 +50,10 @@ impl GetEmailVerification for UserManagement<'_> {
         &self,
         id: &EmailVerificationId,
     ) -> WorkOsResult<EmailVerification, GetEmailVerificationError> {
-        let url = self.workos.base_url().join(&format!(
-            "/user_management/email_verification/{id}",
-            id = id
-        ))?;
+        let url = self
+            .workos
+            .base_url()
+            .join(&format!("/user_management/email_verification/{id}"))?;
         let organization = self
             .workos
             .client()

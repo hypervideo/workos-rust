@@ -24,10 +24,10 @@ pub enum AuthenticationFactorTypeString {
 pub enum AuthenticationFactorType {
     /// Time-based one-time password (TOTP).
     Totp {
-        /// Your application or company name displayed in the user’s authenticator app. Defaults to your WorkOS team name.
+        /// Your application or company name displayed in the user's authenticator app. Defaults to your WorkOS team name.
         issuer: String,
 
-        /// The user’s account name displayed in their authenticator app. Defaults to the user’s email.
+        /// The user's account name displayed in their authenticator app. Defaults to the user's email.
         user: String,
 
         /// Base64 encoded image containing scannable QR code.
