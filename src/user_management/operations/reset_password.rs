@@ -16,6 +16,13 @@ pub struct ResetPasswordParams<'a> {
     pub new_password: &'a str,
 }
 
+/// The response for [`ResetPassword`].
+#[derive(Debug, Deserialize)]
+pub struct ResetPasswordResponse {
+    /// The corresponding user object.
+    pub user: User,
+}
+
 /// An error returned from [`ResetPassword`].
 #[derive(Debug, Error, Deserialize)]
 #[serde(tag = "code", rename_all = "snake_case")]
@@ -113,7 +120,7 @@ pub trait ResetPassword {
     /// # async fn run() -> WorkOsResult<(), ResetPasswordError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
-    /// let user = workos
+    /// let response = workos
     ///     .user_management()
     ///     .reset_password(&ResetPasswordParams {
     ///         token: &PasswordResetToken::from("stpIJ48IFJt0HhSIqjf8eppe0"),
@@ -126,7 +133,7 @@ pub trait ResetPassword {
     async fn reset_password(
         &self,
         params: &ResetPasswordParams<'_>,
-    ) -> WorkOsResult<User, ResetPasswordError>;
+    ) -> WorkOsResult<ResetPasswordResponse, ResetPasswordError>;
 }
 
 #[async_trait]
@@ -134,13 +141,13 @@ impl ResetPassword for UserManagement<'_> {
     async fn reset_password(
         &self,
         params: &ResetPasswordParams<'_>,
-    ) -> WorkOsResult<User, ResetPasswordError> {
+    ) -> WorkOsResult<ResetPasswordResponse, ResetPasswordError> {
         let url = self
             .workos
             .base_url()
             .join("/user_management/password_reset/confirm")?;
 
-        let user = self
+        let response = self
             .workos
             .client()
             .post(url)
@@ -151,10 +158,10 @@ impl ResetPassword for UserManagement<'_> {
             .handle_unauthorized_error()?
             .handle_reset_password_error()
             .await?
-            .json::<User>()
+            .json::<ResetPasswordResponse>()
             .await?;
 
-        Ok(user)
+        Ok(response)
     }
 }
 
@@ -183,23 +190,25 @@ mod test {
             .with_status(201)
             .with_body(
                 json!({
-                    "object": "user",
-                    "id": "user_01E4ZCR3C56J083X43JQXF3JK5",
-                    "email": "marcelina.davis@example.com",
-                    "first_name": "Marcelina",
-                    "last_name": "Davis",
-                    "email_verified": true,
-                    "profile_picture_url": "https://workoscdn.com/images/v1/123abc",
-                    "metadata": {},
-                    "created_at": "2021-06-25T19:07:33.155Z",
-                    "updated_at": "2021-06-25T19:07:33.155Z"
+                    "user": {
+                        "object": "user",
+                        "id": "user_01E4ZCR3C56J083X43JQXF3JK5",
+                        "email": "marcelina.davis@example.com",
+                        "first_name": "Marcelina",
+                        "last_name": "Davis",
+                        "email_verified": true,
+                        "profile_picture_url": "https://workoscdn.com/images/v1/123abc",
+                        "metadata": {},
+                        "created_at": "2021-06-25T19:07:33.155Z",
+                        "updated_at": "2021-06-25T19:07:33.155Z"
+                    }
                 })
                 .to_string(),
             )
             .create_async()
             .await;
 
-        let user = workos
+        let response = workos
             .user_management()
             .reset_password(&ResetPasswordParams {
                 token: &PasswordResetToken::from("stpIJ48IFJt0HhSIqjf8eppe0"),
@@ -208,6 +217,9 @@ mod test {
             .await
             .unwrap();
 
-        assert_eq!(user.id, UserId::from("user_01E4ZCR3C56J083X43JQXF3JK5"))
+        assert_eq!(
+            response.user.id,
+            UserId::from("user_01E4ZCR3C56J083X43JQXF3JK5")
+        )
     }
 }
