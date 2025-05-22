@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use serde::Serialize;
+use reqwest::{Response, StatusCode};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::user_management::{PasswordReset, UserManagement};
@@ -13,12 +14,52 @@ pub struct CreatePasswordResetParams<'a> {
 }
 
 /// An error returned from [`CreatePasswordReset`].
-#[derive(Debug, Error)]
-pub enum CreatePasswordResetError {}
+#[derive(Debug, Error, Deserialize)]
+#[serde(tag = "code", rename_all = "snake_case")]
+pub enum CreatePasswordResetError {
+    /// Entity not found error.
+    #[error("entity_not_found: {message}")]
+    EntityNotFound {
+        /// A human-readable message describing the error.
+        message: String,
+
+        /// The entity ID.
+        entity_id: String,
+    },
+}
 
 impl From<CreatePasswordResetError> for WorkOsError<CreatePasswordResetError> {
     fn from(err: CreatePasswordResetError) -> Self {
         Self::Operation(err)
+    }
+}
+
+#[async_trait]
+pub(crate) trait HandleCreatePasswordResetError
+where
+    Self: Sized,
+{
+    async fn handle_create_password_reset_error(
+        self,
+    ) -> WorkOsResult<Self, CreatePasswordResetError>;
+}
+
+#[async_trait]
+impl HandleCreatePasswordResetError for Response {
+    async fn handle_create_password_reset_error(
+        self,
+    ) -> WorkOsResult<Self, CreatePasswordResetError> {
+        match self.error_for_status_ref() {
+            Ok(_) => Ok(self),
+            Err(err) => match err.status() {
+                Some(StatusCode::NOT_FOUND) => {
+                    let error = self.json::<CreatePasswordResetError>().await?;
+
+                    Err(WorkOsError::Operation(error))
+                }
+                _ => Err(WorkOsError::RequestError(err)),
+            },
+        }
     }
 }
 
@@ -74,7 +115,9 @@ impl CreatePasswordReset for UserManagement<'_> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?
+            .handle_unauthorized_error()?
+            .handle_create_password_reset_error()
+            .await?
             .json::<PasswordReset>()
             .await?;
 
