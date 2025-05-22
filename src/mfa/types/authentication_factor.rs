@@ -10,6 +10,23 @@ use crate::Timestamps;
 #[from(forward)]
 pub struct AuthenticationFactorId(String);
 
+/// The type of the authentication factor.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AuthenticationFactorTypeString {
+    /// Time-based one-time password (TOTP).
+    Totp,
+}
+
+/// The ID and name of an [`AuthenticationFactor`].
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+pub struct AuthenticationFactorIdAndType {
+    /// The unique ID of the authentication factor.
+    pub id: AuthenticationFactorId,
+
+    /// The type of the authentication factor.
+    pub r#type: AuthenticationFactorTypeString,
+}
+
 /// [WorkOS Docs: Authentication Factor](https://workos.com/docs/reference/mfa/authentication-factor)
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationFactor {
@@ -31,16 +48,19 @@ pub struct AuthenticationFactor {
 pub enum AuthenticationFactorType {
     /// Time-based one-time password (TOTP).
     Totp {
-        /// A [data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs)
-        /// containing the scannable QR code to enroll the factor.
+        /// Your application or company name displayed in the user's authenticator app. Defaults to your WorkOS team name.
+        issuer: String,
+
+        /// The user's account name displayed in their authenticator app. Defaults to the user's email.
+        user: String,
+
+        /// Base64 encoded image containing scannable QR code.
         qr_code: String,
 
-        /// The TOTP secret.
-        ///
-        /// This can be manually entered into some authenticator apps in place of scanning the `qr_code`.
+        /// TOTP secret that can be manually entered into some authenticator apps in place of scanning a QR code.
         secret: String,
 
-        /// The `otpauth://` URI that is encoded in the `qr_code`.
+        /// The `otpauth` URI that is encoded by the provided `qr_code`.
         uri: String,
     },
     /// One-time password via SMS message.
@@ -67,6 +87,8 @@ mod test {
             "updated_at": "2022-02-15T15:14:19.392Z",
             "type": "totp",
             "totp": {
+                "issuer": "Foo Corp",
+                "user": "alan.turing@foo-corp.com",
                 "qr_code": "data:image/png;base64,{base64EncodedPng}",
                 "secret": "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF",
                 "uri": "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp"
@@ -78,6 +100,8 @@ mod test {
             AuthenticationFactor {
                 id: AuthenticationFactorId::from("auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
                 r#type: AuthenticationFactorType::Totp {
+                    issuer: "Foo Corp".to_string(),
+                    user: "alan.turing@foo-corp.com".to_string(),
                     qr_code: "data:image/png;base64,{base64EncodedPng}".to_string(),
                     secret: "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF".to_string(),
                     uri: "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp".to_string()

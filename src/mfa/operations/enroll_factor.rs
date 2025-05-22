@@ -178,6 +178,8 @@ mod test {
                     "updated_at": "2022-02-15T15:14:19.392Z",
                     "type": "totp",
                     "totp": {
+                        "issuer": "Foo Corp",
+                        "user": "alan.turing@foo-corp.com",
                         "qr_code": "data:image/png;base64,{base64EncodedPng}",
                         "secret": "NAGCCFS3EYRB422HNAKAKY3XDUORMSRF",
                         "uri": "otpauth://totp/FooCorp:alan.turing@foo-corp.com?secret=NAGCCFS3EYRB422HNAKAKY3XDUORMSRF&issuer=FooCorp"
