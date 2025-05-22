@@ -3,12 +3,12 @@ use reqwest::{Response, StatusCode};
 use serde::Deserialize;
 use thiserror::Error;
 
-use crate::{organizations::OrganizationIdAndName, sso::ConnectionId, WorkOsError, WorkOsResult};
-
-use super::{
-    AuthenticateMethods, AuthenticationFactorIdAndType, EmailVerificationId,
-    PendingAuthenticationToken, User,
+use crate::{
+    mfa::AuthenticationFactorIdAndType, organizations::OrganizationIdAndName, sso::ConnectionId,
+    WorkOsError, WorkOsResult,
 };
+
+use super::{AuthenticateMethods, EmailVerificationId, PendingAuthenticationToken, User};
 
 /// An error returned from authenticate requests.
 #[derive(Debug, Deserialize, Error)]
