@@ -59,6 +59,13 @@ pub enum AuthenticateErrorWithCode {
         message: String,
     },
 
+    /// Invalid pending authentication token error.
+    #[error("invalid_pending_authentication_token: {message}")]
+    InvalidPendingAuthenticationToken {
+        /// A human-readable message describing the error.
+        message: String,
+    },
+
     /// MFA enrollment error
     ///
     /// This error indicates that a user who is not enrolled into MFA attempted to authenticate in an environment where MFA is required.
@@ -141,6 +148,9 @@ impl AuthenticateErrorWithCode {
             }
             AuthenticateErrorWithCode::InvalidCredentials { .. } => "invalid_credentials",
             AuthenticateErrorWithCode::InvalidOneTimeCode { .. } => "invalid_one_time_code",
+            AuthenticateErrorWithCode::InvalidPendingAuthenticationToken { .. } => {
+                "invalid_pending_authentication_token"
+            }
             AuthenticateErrorWithCode::MfaEnrollment { .. } => "mfa_enrollment",
             AuthenticateErrorWithCode::MfaChallenge { .. } => "mfa_challenge",
             AuthenticateErrorWithCode::OneTimeCodeExpired { .. } => "one_time_code_expired",
@@ -157,6 +167,7 @@ impl AuthenticateErrorWithCode {
             AuthenticateErrorWithCode::EmailVerificationRequired { message, .. } => message,
             AuthenticateErrorWithCode::InvalidCredentials { message } => message,
             AuthenticateErrorWithCode::InvalidOneTimeCode { message } => message,
+            AuthenticateErrorWithCode::InvalidPendingAuthenticationToken { message } => message,
             AuthenticateErrorWithCode::MfaEnrollment { message, .. } => message,
             AuthenticateErrorWithCode::MfaChallenge { message, .. } => message,
             AuthenticateErrorWithCode::OneTimeCodeExpired { message } => message,
