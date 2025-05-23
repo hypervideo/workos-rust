@@ -15,6 +15,7 @@ pub struct EnrollAuthFactorParams<'a> {
     pub id: &'a UserId,
 
     /// The type of the factor to enroll.
+    #[serde(flatten)]
     pub r#type: &'a EnrollAuthFactorType<'a>,
 }
 
@@ -50,10 +51,10 @@ pub enum EnrollAuthFactorType<'a> {
 #[derive(Debug, Deserialize)]
 pub struct EnrollAuthFactorResponse {
     /// The authentication challenge object that is used to complete the authentication process.
-    pub challenge: AuthenticationChallenge,
+    pub authentication_challenge: AuthenticationChallenge,
 
     /// The authentication factor object that represents the additional authentication method used on top of the existing authentication strategy.
-    pub factor: AuthenticationFactor,
+    pub authentication_factor: AuthenticationFactor,
 }
 
 /// An error returned from [`EnrollAuthFactor`].
@@ -81,10 +82,14 @@ impl HandleEnrollAuthFactorError for Response {
         match self.error_for_status_ref() {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
-                Some(StatusCode::BAD_REQUEST) => {
-                    let error = self.json::<EnrollAuthFactorError>().await?;
+                Some(StatusCode::BAD_REQUEST) | Some(StatusCode::UNPROCESSABLE_ENTITY) => {
+                    // let error = self.json::<EnrollAuthFactorError>().await?;
+                    let error = self.json::<serde_json::Value>().await?;
 
-                    Err(WorkOsError::Operation(error))
+                    println!("{error:#?}");
+
+                    // Err(WorkOsError::Operation(error))
+                    Err(WorkOsError::RequestError(err))
                 }
                 _ => Err(WorkOsError::RequestError(err)),
             },
@@ -141,7 +146,8 @@ impl EnrollAuthFactor for UserManagement<'_> {
             "/user_management/users/{}/auth_factors",
             params.id
         ))?;
-        let user = self
+
+        let response = self
             .workos
             .client()
             .post(url)
@@ -155,7 +161,7 @@ impl EnrollAuthFactor for UserManagement<'_> {
             .json::<EnrollAuthFactorResponse>()
             .await?;
 
-        Ok(user)
+        Ok(response)
     }
 }
 
@@ -184,7 +190,7 @@ mod test {
             .with_status(201)
             .with_body(
                 json!({
-                    "challenge": {
+                    "authentication_challenge": {
                         "object": "authentication_challenge",
                         "id": "auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5",
                         "created_at": "2022-02-15T15:26:53.274Z",
@@ -192,7 +198,7 @@ mod test {
                         "expires_at": "2022-02-15T15:36:53.279Z",
                         "authentication_factor_id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
                     },
-                    "factor": {
+                    "authentication_factor": {
                         "object": "authentication_factor",
                         "id": "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ",
                         "created_at": "2022-02-15T15:14:19.392Z",
@@ -227,11 +233,11 @@ mod test {
             .unwrap();
 
         assert_eq!(
-            response.challenge.id,
+            response.authentication_challenge.id,
             AuthenticationChallengeId::from("auth_challenge_01FVYZWQTZQ5VB6BC5MPG2EYC5")
         );
         assert_eq!(
-            response.factor.id,
+            response.authentication_factor.id,
             AuthenticationFactorId::from("auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ")
         );
     }
