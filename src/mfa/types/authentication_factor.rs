@@ -15,6 +15,9 @@ pub struct AuthenticationFactorId(String);
 pub enum AuthenticationFactorTypeString {
     /// Time-based one-time password (TOTP).
     Totp,
+
+    /// One-time password via SMS message.
+    Sms,
 }
 
 /// The ID and name of an [`AuthenticationFactor`].
