@@ -12,6 +12,7 @@ pub struct AuthenticationFactorId(String);
 
 /// The type of the authentication factor.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum AuthenticationFactorTypeString {
     /// Time-based one-time password (TOTP).
     Totp,
