@@ -11,8 +11,8 @@ use crate::{ResponseExt, WorkOsError, WorkOsResult};
 #[derive(Debug, Serialize)]
 pub struct EnrollAuthFactorParams<'a> {
     /// The unique ID of the user to enroll the auth factor.
-    #[serde(skip)]
-    pub id: &'a UserId,
+    #[serde(skip_serializing)]
+    pub user_id: &'a UserId,
 
     /// The type of the factor to enroll.
     #[serde(flatten)]
@@ -119,7 +119,7 @@ pub trait EnrollAuthFactor {
     /// let response = workos
     ///     .user_management()
     ///     .enroll_auth_factor(&EnrollAuthFactorParams {
-    ///         id: &UserId::from("user_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
+    ///         user_id: &UserId::from("user_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
     ///         r#type: &EnrollAuthFactorType::Totp {
     ///             issuer: Some("Foo Corp"),
     ///             user: Some("alan.turing@example.com"),
@@ -144,7 +144,7 @@ impl EnrollAuthFactor for UserManagement<'_> {
     ) -> WorkOsResult<EnrollAuthFactorResponse, EnrollAuthFactorError> {
         let url = self.workos.base_url().join(&format!(
             "/user_management/users/{}/auth_factors",
-            params.id
+            params.user_id
         ))?;
 
         let response = self
@@ -222,7 +222,7 @@ mod test {
         let response = workos
             .user_management()
             .enroll_auth_factor(&EnrollAuthFactorParams {
-                id: &UserId::from("user_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
+                user_id: &UserId::from("user_01FVYZ5QM8N98T9ME5BCB2BBMJ"),
                 r#type: &EnrollAuthFactorType::Totp {
                     issuer: Some("Foo Corp"),
                     user: Some("alan.turing@example.com"),

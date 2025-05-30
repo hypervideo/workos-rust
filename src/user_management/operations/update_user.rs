@@ -98,7 +98,7 @@ impl UpdateUser for UserManagement<'_> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/user_management/{id}", id = params.user_id))?;
+            .join(&format!("/user_management/users/{id}", id = params.user_id))?;
         let user = self
             .workos
             .client()
@@ -137,7 +137,10 @@ mod test {
             .build();
 
         server
-            .mock("PUT", "/user_management/user_01E4ZCR3C56J083X43JQXF3JK5")
+            .mock(
+                "PUT",
+                "/user_management/users/user_01E4ZCR3C56J083X43JQXF3JK5",
+            )
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
