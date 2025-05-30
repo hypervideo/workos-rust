@@ -19,6 +19,7 @@ mod get_user_identities;
 mod list_auth_factors;
 mod list_users;
 mod reset_password;
+mod update_user;
 
 pub use authenticate_with_code::*;
 pub use authenticate_with_email_verification::*;
@@ -41,3 +42,4 @@ pub use get_user_identities::*;
 pub use list_auth_factors::*;
 pub use list_users::*;
 pub use reset_password::*;
+pub use update_user::*;
