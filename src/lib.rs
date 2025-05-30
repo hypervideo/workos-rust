@@ -1,4 +1,4 @@
-//! The official SDK for interacting with the [WorkOS](https://workos.com) API.
+//! Rust SDK for interacting with the [WorkOS](https://workos.com) API.
 
 #![warn(missing_docs)]
 
