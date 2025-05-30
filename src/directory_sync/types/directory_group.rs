@@ -43,7 +43,7 @@ pub struct DirectoryGroup {
 mod test {
     use std::collections::HashMap;
 
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     use crate::organizations::OrganizationId;
     use crate::{RawAttributes, Timestamp, Timestamps};

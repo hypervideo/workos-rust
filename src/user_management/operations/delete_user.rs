@@ -49,7 +49,7 @@ pub trait DeleteUser {
     /// # }
     /// ```
     async fn delete_user(&self, params: &DeleteUserParams<'_>)
-        -> WorkOsResult<(), DeleteUserError>;
+    -> WorkOsResult<(), DeleteUserError>;
 }
 
 #[async_trait]
