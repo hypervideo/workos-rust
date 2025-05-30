@@ -48,7 +48,7 @@ impl From<UpdateUserError> for WorkOsError<UpdateUserError> {
 /// [WorkOS Docs: Update a user](https://workos.com/docs/reference/user-management/user/update)
 #[async_trait]
 pub trait UpdateUser {
-    /// Update a [`User`].
+    /// Updates properties of a user. The omitted properties will be left unchanged.
     ///
     /// [WorkOS Docs: Update a user](https://workos.com/docs/reference/user-management/user/update)
     ///
