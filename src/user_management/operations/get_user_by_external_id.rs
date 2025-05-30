@@ -74,7 +74,7 @@ mod test {
     use serde_json::json;
     use tokio;
 
-    use crate::{user_management::UserId, ApiKey, WorkOs};
+    use crate::{ApiKey, WorkOs, user_management::UserId};
 
     use super::*;
 

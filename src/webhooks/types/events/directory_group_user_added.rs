@@ -19,7 +19,7 @@ pub struct DirectoryUserAddedToGroupWebhook {
 mod test {
     use std::collections::HashMap;
 
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     use crate::directory_sync::{
         DirectoryGroup, DirectoryGroupId, DirectoryId, DirectoryUser, DirectoryUserEmail,

@@ -11,7 +11,7 @@ pub struct RawAttributes(pub HashMap<String, Value>);
 mod test {
     use std::collections::HashMap;
 
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     use super::RawAttributes;
 

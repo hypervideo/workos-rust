@@ -5,7 +5,7 @@ description = "Rust SDK for interacting with the WorkOS API."
 repository = "https://github.com/hypervideo/workos-rust"
 authors = ["Hyper <info@hyper.video>", "WorkOS"]
 license = "MIT"
-edition = "2021"
+edition = "2024"
 
 [features]
 default = ["rustls-tls"]

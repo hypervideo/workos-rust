@@ -4,8 +4,8 @@ use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{
-    mfa::AuthenticationFactorIdAndType, organizations::OrganizationIdAndName, sso::ConnectionId,
-    WorkOsError, WorkOsResult,
+    WorkOsError, WorkOsResult, mfa::AuthenticationFactorIdAndType,
+    organizations::OrganizationIdAndName, sso::ConnectionId,
 };
 
 use super::{AuthenticateMethods, EmailVerificationId, PendingAuthenticationToken, User};
