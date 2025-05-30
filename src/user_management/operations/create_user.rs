@@ -44,7 +44,7 @@ impl From<CreateUserError> for WorkOsError<CreateUserError> {
 /// [WorkOS Docs: Create an User](https://workos.com/docs/reference/user-management/user/create)
 #[async_trait]
 pub trait CreateUser {
-    /// Creates an [`User`].
+    /// Create a new user in the current environment.
     ///
     /// [WorkOS Docs: Create an User](https://workos.com/docs/reference/user-management/user/create)
     ///
