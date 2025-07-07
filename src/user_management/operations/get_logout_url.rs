@@ -63,7 +63,7 @@ impl GetLogoutUrl for UserManagement<'_> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/user_management/sessions/logout?{}", query))?;
+            .join(&format!("/user_management/sessions/logout?{query}"))?;
 
         Ok(url)
     }

@@ -53,7 +53,7 @@ impl GetOrganization for Organizations<'_> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/organizations/{id}", id = id))?;
+            .join(&format!("/organizations/{id}"))?;
         let organization = self
             .workos
             .client()

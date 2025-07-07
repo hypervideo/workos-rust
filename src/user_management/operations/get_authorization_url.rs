@@ -184,7 +184,7 @@ impl GetAuthorizationUrl for UserManagement<'_> {
 
         self.workos
             .base_url()
-            .join(&format!("/user_management/authorize?{}", query))
+            .join(&format!("/user_management/authorize?{query}"))
     }
 }
 

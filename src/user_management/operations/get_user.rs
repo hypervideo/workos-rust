@@ -47,7 +47,7 @@ impl GetUser for UserManagement<'_> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/user_management/users/{id}", id = id))?;
+            .join(&format!("/user_management/users/{id}"))?;
         let user = self
             .workos
             .client()

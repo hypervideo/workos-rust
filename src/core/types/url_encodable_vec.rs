@@ -17,13 +17,12 @@ where
         let mut serialized = String::new();
 
         for (index, item) in self.0.iter().enumerate() {
-            write!(&mut serialized, "{}", item).map_err(|err| {
-                ser::Error::custom(format!("failed to write '{}': {}", item, err))
-            })?;
+            write!(&mut serialized, "{item}")
+                .map_err(|err| ser::Error::custom(format!("failed to write '{item}': {err}")))?;
 
             if index < self.0.len() - 1 {
                 write!(&mut serialized, ",").map_err(|err| {
-                    ser::Error::custom(format!("failed to write separator: {}", err))
+                    ser::Error::custom(format!("failed to write separator: {err}"))
                 })?
             }
         }

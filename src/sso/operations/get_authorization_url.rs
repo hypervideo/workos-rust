@@ -120,7 +120,7 @@ impl GetAuthorizationUrl for Sso<'_> {
 
         self.workos
             .base_url()
-            .join(&format!("/sso/authorize?{}", query))
+            .join(&format!("/sso/authorize?{query}"))
     }
 }
 

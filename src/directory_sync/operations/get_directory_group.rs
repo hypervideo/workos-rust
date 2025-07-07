@@ -55,7 +55,7 @@ impl GetDirectoryGroup for DirectorySync<'_> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/directory_groups/{id}", id = id))?;
+            .join(&format!("/directory_groups/{id}"))?;
         let directory_group = self
             .workos
             .client()

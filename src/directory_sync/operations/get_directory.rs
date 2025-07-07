@@ -44,10 +44,7 @@ pub trait GetDirectory {
 #[async_trait]
 impl GetDirectory for DirectorySync<'_> {
     async fn get_directory(&self, id: &DirectoryId) -> WorkOsResult<Directory, GetDirectoryError> {
-        let url = self
-            .workos
-            .base_url()
-            .join(&format!("/directories/{id}", id = id))?;
+        let url = self.workos.base_url().join(&format!("/directories/{id}"))?;
         let directory = self
             .workos
             .client()

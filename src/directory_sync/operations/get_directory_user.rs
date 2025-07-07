@@ -55,7 +55,7 @@ impl GetDirectoryUser for DirectorySync<'_> {
         let url = self
             .workos
             .base_url()
-            .join(&format!("/directory_users/{id}", id = id))?;
+            .join(&format!("/directory_users/{id}"))?;
         let directory_user = self
             .workos
             .client()
