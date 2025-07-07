@@ -50,10 +50,7 @@ impl GetConnection for Sso<'_> {
         &self,
         id: &ConnectionId,
     ) -> WorkOsResult<Connection, GetConnectionError> {
-        let url = self
-            .workos
-            .base_url()
-            .join(&format!("/connections/{id}", id = id))?;
+        let url = self.workos.base_url().join(&format!("/connections/{id}"))?;
         let connection = self
             .workos
             .client()
