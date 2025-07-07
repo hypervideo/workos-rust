@@ -8,6 +8,11 @@
   ],
   "packageRules": [
     {
+      "automerge": true,
+      "matchCurrentVersion": "!/^0/",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
       "groupName": "serde",
       "matchDatasources": ["crate"],
       "matchPackageNames": ["serde", "serde-*", "serde_*"]
