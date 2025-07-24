@@ -9,7 +9,7 @@ use crate::user_management::{
     AuthenticateError, AuthenticationResponse, HandleAuthenticateError, RefreshToken,
     UserManagement,
 };
-use crate::{ApiKey, WorkOsResult};
+use crate::{ApiKey, ResponseExt, WorkOsResult};
 
 /// The parameters for [`AuthenticateWithRefreshToken`].
 #[derive(Debug, Serialize)]
@@ -107,7 +107,7 @@ impl AuthenticateWithRefreshToken for UserManagement<'_> {
             .await?
             .handle_authenticate_error()
             .await?
-            .json::<AuthenticationResponse>()
+            .json::<AuthenticationResponse,_>()
             .await?;
 
         Ok(authenticate_with_refresh_token_response)

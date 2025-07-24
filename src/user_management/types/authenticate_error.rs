@@ -4,8 +4,7 @@ use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{
-    WorkOsError, WorkOsResult, mfa::AuthenticationFactorIdAndType,
-    organizations::OrganizationIdAndName, sso::ConnectionId,
+    mfa::AuthenticationFactorIdAndType, organizations::OrganizationIdAndName, sso::ConnectionId, ResponseExt, WorkOsError, WorkOsResult
 };
 
 use super::{AuthenticateMethods, EmailVerificationId, PendingAuthenticationToken, User};
@@ -270,13 +269,13 @@ where
 }
 
 #[async_trait]
-impl HandleAuthenticateError for Response {
+impl<'a> HandleAuthenticateError for Box<dyn crate::traits::ClientResponse + 'a> {
     async fn handle_authenticate_error(self) -> WorkOsResult<Self, AuthenticateError> {
         match self.error_for_status_ref() {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) => {
-                    let authenticate_error = self.json::<AuthenticateError>().await?;
+                    let authenticate_error = self.json::<AuthenticateError,_>().await?;
 
                     Err(match &authenticate_error {
                         AuthenticateError::WithError(AuthenticateErrorWithError::Other {
@@ -290,7 +289,7 @@ impl HandleAuthenticateError for Response {
                     })
                 }
                 Some(StatusCode::FORBIDDEN) => {
-                    let authenticate_error = self.json::<AuthenticateError>().await?;
+                    let authenticate_error = self.json::<AuthenticateError,_>().await?;
 
                     Err(WorkOsError::Operation(authenticate_error))
                 }

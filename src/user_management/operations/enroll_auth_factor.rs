@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::mfa::{AuthenticationChallenge, AuthenticationFactor};
+use crate::traits::ClientResponse;
 use crate::user_management::{UserId, UserManagement};
 use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
@@ -77,14 +78,14 @@ where
 }
 
 #[async_trait]
-impl HandleEnrollAuthFactorError for Response {
+impl<'a> HandleEnrollAuthFactorError for Box<dyn ClientResponse + 'a> {
     async fn handle_enroll_auth_factor_error(self) -> WorkOsResult<Self, EnrollAuthFactorError> {
         match self.error_for_status_ref() {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) | Some(StatusCode::UNPROCESSABLE_ENTITY) => {
                     // let error = self.json::<EnrollAuthFactorError>().await?;
-                    let error = self.json::<serde_json::Value>().await?;
+                    let error = self.json::<serde_json::Value,_>().await?;
 
                     println!("{error:#?}");
 
@@ -158,7 +159,7 @@ impl EnrollAuthFactor for UserManagement<'_> {
             .handle_unauthorized_error()?
             .handle_enroll_auth_factor_error()
             .await?
-            .json::<EnrollAuthFactorResponse>()
+            .json::<EnrollAuthFactorResponse,_>()
             .await?;
 
         Ok(response)

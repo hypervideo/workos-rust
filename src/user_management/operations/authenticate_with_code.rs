@@ -7,7 +7,7 @@ use crate::sso::{AuthorizationCode, ClientId};
 use crate::user_management::{
     AuthenticateError, AuthenticationResponse, HandleAuthenticateError, UserManagement,
 };
-use crate::{ApiKey, WorkOsResult};
+use crate::{ApiKey, ResponseExt, WorkOsResult};
 
 /// The parameters for [`AuthenticateWithCode`].
 #[derive(Debug, Serialize)]
@@ -109,7 +109,7 @@ impl AuthenticateWithCode for UserManagement<'_> {
             .await?
             .handle_authenticate_error()
             .await?
-            .json::<AuthenticationResponse>()
+            .json::<AuthenticationResponse,_>()
             .await?;
 
         Ok(authenticate_with_code_response)

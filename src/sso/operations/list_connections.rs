@@ -68,7 +68,7 @@ impl ListConnections for Sso<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PaginatedList<Connection>>()
+            .json::<PaginatedList<Connection>,_>()
             .await?;
 
         Ok(connections)

@@ -52,7 +52,7 @@ impl GetJwks for UserManagement<'_> {
             .send()
             .await?
             .handle_generic_error()?
-            .json::<JwkSet>()
+            .json::<JwkSet,_>()
             .await?;
 
         Ok(jwks)

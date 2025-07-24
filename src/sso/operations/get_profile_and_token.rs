@@ -4,7 +4,8 @@ use serde::Deserialize;
 use thiserror::Error;
 
 use crate::sso::{AccessToken, AuthorizationCode, ClientId, Profile, Sso};
-use crate::{WorkOsError, WorkOsResult};
+use crate::traits::ClientResponse;
+use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
 /// The parameters for [`GetProfileAndToken`].
 #[derive(Debug)]
@@ -49,7 +50,7 @@ where
 }
 
 #[async_trait]
-impl HandleGetProfileAndTokenError for Response {
+impl<'a> HandleGetProfileAndTokenError for Box<dyn ClientResponse + 'a> {
     async fn handle_get_profile_and_token_error(
         self,
     ) -> WorkOsResult<Self, GetProfileAndTokenError> {
@@ -57,7 +58,7 @@ impl HandleGetProfileAndTokenError for Response {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) => {
-                    let error = self.json::<GetProfileAndTokenError>().await?;
+                    let error = self.json::<GetProfileAndTokenError,_>().await?;
 
                     Err(match error.error.as_str() {
                         "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
@@ -125,7 +126,7 @@ impl GetProfileAndToken for Sso<'_> {
             .await?
             .handle_get_profile_and_token_error()
             .await?
-            .json::<GetProfileAndTokenResponse>()
+            .json::<GetProfileAndTokenResponse,_>()
             .await?;
 
         Ok(get_profile_and_token_response)

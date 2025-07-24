@@ -62,7 +62,7 @@ impl GetEmailVerification for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<EmailVerification>()
+            .json::<EmailVerification,_>()
             .await?;
 
         Ok(organization)

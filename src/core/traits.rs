@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use async_trait::async_trait;
-use reqwest::IntoUrl;
+use reqwest::{IntoUrl, StatusCode};
 use url::Url;
 
 #[async_trait]
@@ -28,6 +28,41 @@ impl Client for reqwest::Client {
     }
 }
 #[async_trait]
+pub trait ClientResponse: Send + Sync{
+    fn status(&self) -> StatusCode;
+    fn error_for_status<'a>(
+        self: Box<Self>,
+    ) -> Result<Box<dyn ClientResponse + 'a>, reqwest::Error>
+    where
+        Self: 'a;
+    fn error_for_status_ref(&self) -> Result<&(dyn ClientResponse + '_), reqwest::Error>;
+    async fn text(self: Box<Self>) -> Result<String, reqwest::Error>;
+}
+#[async_trait]
+impl ClientResponse for reqwest::Response {
+    fn status(&self) -> StatusCode {
+        self.status()
+    }
+    fn error_for_status<'a>(self: Box<Self>) -> Result<Box<dyn ClientResponse + 'a>, reqwest::Error>
+    where
+        Self: 'a,
+    {
+        match (*self).error_for_status() {
+            Err(e) => Err(e),
+            Ok(a) => Ok(Box::new(a)),
+        }
+    }
+        fn error_for_status_ref(&self) -> Result<&(dyn ClientResponse + '_), reqwest::Error>{
+            match self.error_for_status_ref(){
+                Err(e) => Err(e),
+                Ok(v) => Ok(v)
+            }
+        }
+    async fn text(self: Box<Self>) -> Result<String, reqwest::Error> {
+        (*self).text().await
+    }
+}
+#[async_trait]
 pub trait ClientRequest {
     fn bearer_auth<'a>(self: Box<Self>, x: &(dyn Display + '_)) -> Box<dyn ClientRequest + 'a>
     where
@@ -50,12 +85,20 @@ pub trait ClientRequest {
     ) -> Box<dyn ClientRequest + 'a>
     where
         Self: 'a;
-    async fn send(self: Box<Self>) -> Result<reqwest::Response, reqwest::Error>;
+    async fn send<'a>(self: Box<Self>) -> Result<Box<dyn ClientResponse + 'a>, reqwest::Error>
+    where
+        Self: 'a;
 }
 #[async_trait]
 impl ClientRequest for reqwest::RequestBuilder {
-    async fn send(self: Box<Self>) -> Result<reqwest::Response, reqwest::Error> {
-        reqwest::RequestBuilder::send(*self).await
+    async fn send<'a>(self: Box<Self>) -> Result<Box<dyn ClientResponse + 'a>, reqwest::Error>
+    where
+        Self: 'a,
+    {
+        match reqwest::RequestBuilder::send(*self).await {
+            Err(e) => Err(e),
+            Ok(a) => Ok(Box::new(a)),
+        }
     }
     fn bearer_auth<'a>(self: Box<Self>, x: &(dyn Display + '_)) -> Box<dyn ClientRequest + 'a>
     where

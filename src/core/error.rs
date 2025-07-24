@@ -22,6 +22,9 @@ pub enum WorkOsError<E> {
     /// An unhandled error occurred with the API request.
     #[error("request error")]
     RequestError(#[from] reqwest::Error),
+
+    #[error("json error")]
+    Json(#[from] serde_json::Error),
 }
 
 /// A WorkOS SDK result.

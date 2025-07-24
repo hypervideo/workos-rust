@@ -51,7 +51,7 @@ impl GetProfile for Sso<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<Profile>()
+            .json::<Profile,_>()
             .await?;
 
         Ok(get_profile_response)

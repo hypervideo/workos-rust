@@ -82,7 +82,7 @@ impl ListDirectoryUsers for DirectorySync<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PaginatedList<DirectoryUser>>()
+            .json::<PaginatedList<DirectoryUser>,_>()
             .await?;
 
         Ok(directory_users)

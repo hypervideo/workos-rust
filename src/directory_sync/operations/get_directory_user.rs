@@ -64,7 +64,7 @@ impl GetDirectoryUser for DirectorySync<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<DirectoryUser>()
+            .json::<DirectoryUser,_>()
             .await?;
 
         Ok(directory_user)
