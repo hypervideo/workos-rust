@@ -2114,6 +2114,7 @@ dependencies = [
  "chrono",
  "derive_more",
  "erased-serde",
+ "http",
  "jsonwebtoken",
  "matches",
  "mockito",
