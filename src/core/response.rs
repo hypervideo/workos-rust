@@ -1,4 +1,4 @@
-use reqwest::{Response, StatusCode};
+use http::StatusCode;
 use serde::de::DeserializeOwned;
 
 use crate::{WorkOsError, WorkOsResult, traits::ClientResponse};

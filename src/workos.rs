@@ -10,6 +10,7 @@ use crate::mfa::Mfa;
 use crate::organizations::Organizations;
 use crate::passwordless::Passwordless;
 use crate::sso::Sso;
+use crate::traits::Client;
 use crate::user_management::UserManagement;
 
 /// The WorkOS client.
@@ -107,6 +108,7 @@ impl<'a> WorkOsBuilder<'a> {
         self
     }
 
+    #[cfg(feature = "reqwest")]
     /// Consumes the builder and returns the constructed client.
     pub fn build(self) -> WorkOs<'static> {
         let client = reqwest::Client::builder()
@@ -114,10 +116,20 @@ impl<'a> WorkOsBuilder<'a> {
             .build()
             .unwrap();
 
+        self.build_with_client(Arc::new(client))
+    }
+
+    /// Consumes the builder and returns the constructed client.
+    pub fn build_with_client<'b>(self, client: Arc<dyn Client + Send + Sync + 'b>) -> WorkOs<'b> {
+        // let client = reqwest::Client::builder()
+        //     .user_agent(concat!("workos-rust/", env!("CARGO_PKG_VERSION")))
+        //     .build()
+        //     .unwrap();
+
         WorkOs {
             base_url: self.base_url,
             key: self.key.to_owned(),
-            client: Arc::new(client),
+            client,
             phantom: PhantomData,
         }
     }
