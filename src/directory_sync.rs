@@ -14,7 +14,7 @@ use crate::WorkOs;
 ///
 /// [WorkOS Docs: Directory Sync Guide](https://workos.com/docs/directory-sync/guide)
 pub struct DirectorySync<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> DirectorySync<'a> {

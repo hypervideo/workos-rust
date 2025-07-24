@@ -10,7 +10,7 @@ use crate::WorkOs;
 
 /// Organizations.
 pub struct Organizations<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> Organizations<'a> {

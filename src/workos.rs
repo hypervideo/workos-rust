@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use url::{ParseError, Url};
 
 use crate::ApiKey;
@@ -11,13 +13,14 @@ use crate::user_management::UserManagement;
 
 /// The WorkOS client.
 #[derive(Clone)]
-pub struct WorkOs {
+pub struct WorkOs<'n> {
     base_url: Url,
     key: ApiKey,
     client: reqwest::Client,
+    phantom: PhantomData<&'n ()>
 }
 
-impl WorkOs {
+impl WorkOs<'_> {
     /// Returns a new instance of the WorkOS client using the provided API key.
     pub fn new(key: &ApiKey) -> Self {
         WorkOsBuilder::new(key).build()
@@ -104,7 +107,7 @@ impl<'a> WorkOsBuilder<'a> {
     }
 
     /// Consumes the builder and returns the constructed client.
-    pub fn build(self) -> WorkOs {
+    pub fn build(self) -> WorkOs<'static> {
         let client = reqwest::Client::builder()
             .user_agent(concat!("workos-rust/", env!("CARGO_PKG_VERSION")))
             .build()
@@ -114,6 +117,7 @@ impl<'a> WorkOsBuilder<'a> {
             base_url: self.base_url,
             key: self.key.to_owned(),
             client,
+            phantom: PhantomData
         }
     }
 }
