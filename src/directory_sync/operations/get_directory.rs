@@ -53,7 +53,7 @@ impl GetDirectory for DirectorySync<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<Directory,_>()
+            .json::<Directory, _>()
             .await?;
 
         Ok(directory)

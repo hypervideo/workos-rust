@@ -62,7 +62,7 @@ impl GetOrganization for Organizations<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<Organization,_>()
+            .json::<Organization, _>()
             .await?;
 
         Ok(organization)

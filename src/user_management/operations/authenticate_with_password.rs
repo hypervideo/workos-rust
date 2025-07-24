@@ -109,7 +109,7 @@ impl AuthenticateWithPassword for UserManagement<'_> {
             .await?
             .handle_authenticate_error()
             .await?
-            .json::<AuthenticationResponse,_>()
+            .json::<AuthenticationResponse, _>()
             .await?;
 
         Ok(authenticate_with_password_response)

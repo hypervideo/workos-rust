@@ -92,7 +92,7 @@ impl<'a> HandleResetPasswordError for Box<dyn ClientResponse + 'a> {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) | Some(StatusCode::NOT_FOUND) => {
-                    let error = self.json::<ResetPasswordError,_>().await?;
+                    let error = self.json::<ResetPasswordError, _>().await?;
 
                     Err(WorkOsError::Operation(error))
                 }
@@ -159,7 +159,7 @@ impl ResetPassword for UserManagement<'_> {
             .handle_unauthorized_error()?
             .handle_reset_password_error()
             .await?
-            .json::<ResetPasswordResponse,_>()
+            .json::<ResetPasswordResponse, _>()
             .await?;
 
         Ok(response)

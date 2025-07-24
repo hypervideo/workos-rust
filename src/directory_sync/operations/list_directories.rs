@@ -74,7 +74,7 @@ impl ListDirectories for DirectorySync<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PaginatedList<Directory>,_>()
+            .json::<PaginatedList<Directory>, _>()
             .await?;
 
         Ok(directories)

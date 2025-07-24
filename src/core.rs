@@ -1,9 +1,8 @@
 mod error;
 mod response;
-mod types;
 ///Traits for requests and other core infrastructure
 pub mod traits;
-
+mod types;
 
 pub use error::*;
 pub(crate) use response::*;

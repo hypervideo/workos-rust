@@ -58,7 +58,7 @@ impl<'a> HandleGetProfileAndTokenError for Box<dyn ClientResponse + 'a> {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) => {
-                    let error = self.json::<GetProfileAndTokenError,_>().await?;
+                    let error = self.json::<GetProfileAndTokenError, _>().await?;
 
                     Err(match error.error.as_str() {
                         "invalid_client" | "unauthorized_client" => WorkOsError::Unauthorized,
@@ -126,7 +126,7 @@ impl GetProfileAndToken for Sso<'_> {
             .await?
             .handle_get_profile_and_token_error()
             .await?
-            .json::<GetProfileAndTokenResponse,_>()
+            .json::<GetProfileAndTokenResponse, _>()
             .await?;
 
         Ok(get_profile_and_token_response)

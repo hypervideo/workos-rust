@@ -109,7 +109,7 @@ impl GeneratePortalLink for AdminPortal<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<GeneratePortalLinkResponse,_>()
+            .json::<GeneratePortalLinkResponse, _>()
             .await?;
 
         Ok(generate_link_response)

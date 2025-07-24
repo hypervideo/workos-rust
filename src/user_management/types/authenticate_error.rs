@@ -4,7 +4,8 @@ use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{
-    mfa::AuthenticationFactorIdAndType, organizations::OrganizationIdAndName, sso::ConnectionId, ResponseExt, WorkOsError, WorkOsResult
+    ResponseExt, WorkOsError, WorkOsResult, mfa::AuthenticationFactorIdAndType,
+    organizations::OrganizationIdAndName, sso::ConnectionId,
 };
 
 use super::{AuthenticateMethods, EmailVerificationId, PendingAuthenticationToken, User};
@@ -275,7 +276,7 @@ impl<'a> HandleAuthenticateError for Box<dyn crate::traits::ClientResponse + 'a>
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) => {
-                    let authenticate_error = self.json::<AuthenticateError,_>().await?;
+                    let authenticate_error = self.json::<AuthenticateError, _>().await?;
 
                     Err(match &authenticate_error {
                         AuthenticateError::WithError(AuthenticateErrorWithError::Other {
@@ -289,7 +290,7 @@ impl<'a> HandleAuthenticateError for Box<dyn crate::traits::ClientResponse + 'a>
                     })
                 }
                 Some(StatusCode::FORBIDDEN) => {
-                    let authenticate_error = self.json::<AuthenticateError,_>().await?;
+                    let authenticate_error = self.json::<AuthenticateError, _>().await?;
 
                     Err(WorkOsError::Operation(authenticate_error))
                 }

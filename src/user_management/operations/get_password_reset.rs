@@ -62,7 +62,7 @@ impl GetPasswordReset for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PasswordReset,_>()
+            .json::<PasswordReset, _>()
             .await?;
 
         Ok(organization)

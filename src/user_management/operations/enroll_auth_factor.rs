@@ -85,7 +85,7 @@ impl<'a> HandleEnrollAuthFactorError for Box<dyn ClientResponse + 'a> {
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) | Some(StatusCode::UNPROCESSABLE_ENTITY) => {
                     // let error = self.json::<EnrollAuthFactorError>().await?;
-                    let error = self.json::<serde_json::Value,_>().await?;
+                    let error = self.json::<serde_json::Value, _>().await?;
 
                     println!("{error:#?}");
 
@@ -159,7 +159,7 @@ impl EnrollAuthFactor for UserManagement<'_> {
             .handle_unauthorized_error()?
             .handle_enroll_auth_factor_error()
             .await?
-            .json::<EnrollAuthFactorResponse,_>()
+            .json::<EnrollAuthFactorResponse, _>()
             .await?;
 
         Ok(response)

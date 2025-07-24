@@ -88,7 +88,7 @@ impl ListOrganizations for Organizations<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PaginatedList<Organization>,_>()
+            .json::<PaginatedList<Organization>, _>()
             .await?;
 
         Ok(organizations)

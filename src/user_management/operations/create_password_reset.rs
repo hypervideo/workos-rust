@@ -46,7 +46,7 @@ where
 }
 
 #[async_trait]
-impl<'a> HandleCreatePasswordResetError for Box<dyn ClientResponse + 'a>{
+impl<'a> HandleCreatePasswordResetError for Box<dyn ClientResponse + 'a> {
     async fn handle_create_password_reset_error(
         self,
     ) -> WorkOsResult<Self, CreatePasswordResetError> {
@@ -54,7 +54,7 @@ impl<'a> HandleCreatePasswordResetError for Box<dyn ClientResponse + 'a>{
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::NOT_FOUND) => {
-                    let error = self.json::<CreatePasswordResetError,_>().await?;
+                    let error = self.json::<CreatePasswordResetError, _>().await?;
 
                     Err(WorkOsError::Operation(error))
                 }
@@ -119,7 +119,7 @@ impl CreatePasswordReset for UserManagement<'_> {
             .handle_unauthorized_error()?
             .handle_create_password_reset_error()
             .await?
-            .json::<PasswordReset,_>()
+            .json::<PasswordReset, _>()
             .await?;
 
         Ok(user)

@@ -82,7 +82,7 @@ impl ListDirectoryGroups for DirectorySync<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PaginatedList<DirectoryGroup>,_>()
+            .json::<PaginatedList<DirectoryGroup>, _>()
             .await?;
 
         Ok(directory_groups)
