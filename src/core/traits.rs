@@ -3,13 +3,15 @@ use std::fmt::Display;
 use async_trait::async_trait;
 use http::StatusCode;
 use url::Url;
-
+///An error with a ststus code
 pub trait StatusError: std::error::Error {
+    ///The status code, if available, of this error
     fn status(&self) -> Option<StatusCode>;
 }
-
+///A HTTP error
 #[derive(Debug)]
 pub struct RequestError {
+    ///The status code, if available, of this error
     pub err: Box<dyn StatusError + Send + Sync>,
 }
 
@@ -20,6 +22,7 @@ impl StatusError for RequestError {
 }
 
 impl RequestError {
+    ///The status code, if available, of this error
     pub fn status(&self) -> Option<StatusCode> {
         StatusError::status(self)
     }
@@ -37,47 +40,62 @@ impl std::error::Error for RequestError {
 }
 
 #[async_trait]
-///An HTP client
+///An HTTP client
 pub trait Client {
+    ///Create a GET request
     fn get(&self, url: Url) -> Box<dyn ClientRequest + '_>;
+    ///Create a POST request
     fn post(&self, url: Url) -> Box<dyn ClientRequest + '_>;
+    ///Create a PUT request
     fn put(&self, url: Url) -> Box<dyn ClientRequest + '_>;
+    ///Create a DELETE request
     fn delete(&self, url: Url) -> Box<dyn ClientRequest + '_>;
 }
 
 #[async_trait]
+///A response to a HTTP request
 pub trait ClientResponse: Send + Sync {
+    ///That response's status code
     fn status(&self) -> StatusCode;
+    ///Attept to catch error-signaling status codes and return them as errors
     fn error_for_status<'a>(self: Box<Self>) -> Result<Box<dyn ClientResponse + 'a>, RequestError>
     where
         Self: 'a;
+    ///Attept to catch error-signaling status codes and return them as errors
     fn error_for_status_ref(&self) -> Result<&(dyn ClientResponse + '_), RequestError>;
+    ///The text of the response
     async fn text(self: Box<Self>) -> Result<String, RequestError>;
 }
 
 #[async_trait]
+///A HTTP request
 pub trait ClientRequest {
+    ///Its authenticaton
     fn bearer_auth<'a>(self: Box<Self>, x: &(dyn Display + '_)) -> Box<dyn ClientRequest + 'a>
     where
         Self: 'a;
+    ///Adds ad JSON body
     fn json<'a>(
         self: Box<Self>,
         x: &(dyn erased_serde::Serialize + '_),
     ) -> Box<dyn ClientRequest + 'a>
     where
         Self: 'a;
+    ///Adds a query string
     fn query<'a>(
         self: Box<Self>,
         x: &(dyn erased_serde::Serialize + '_),
     ) -> Box<dyn ClientRequest + 'a>
     where
         Self: 'a;
+    ///Adds a form body
     fn form<'a>(
         self: Box<Self>,
         x: &(dyn erased_serde::Serialize + '_),
     ) -> Box<dyn ClientRequest + 'a>
     where
         Self: 'a;
+    ///Sends the request
     async fn send<'a>(self: Box<Self>) -> Result<Box<dyn ClientResponse + 'a>, RequestError>
     where
         Self: 'a;
