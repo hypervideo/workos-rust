@@ -23,6 +23,7 @@ pub enum WorkOsError<E> {
     #[error("request error")]
     RequestError(#[from] crate::traits::RequestError),
 
+    /// An error occurred when deserializing JSON
     #[error("json error")]
     Json(#[from] serde_json::Error),
 }
