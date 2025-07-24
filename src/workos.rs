@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 use url::{ParseError, Url};
 
@@ -16,8 +17,8 @@ use crate::user_management::UserManagement;
 pub struct WorkOs<'n> {
     base_url: Url,
     key: ApiKey,
-    client: reqwest::Client,
-    phantom: PhantomData<&'n ()>
+    client: Arc<dyn crate::traits::Client + Send + Sync + 'n>,
+    phantom: PhantomData<&'n ()>,
 }
 
 impl WorkOs<'_> {
@@ -39,8 +40,8 @@ impl WorkOs<'_> {
         &self.key
     }
 
-    pub(crate) fn client(&self) -> &reqwest::Client {
-        &self.client
+    pub(crate) fn client(&self) -> &(dyn crate::traits::Client + '_) {
+        &*self.client
     }
 
     /// Returns an [`AdminPortal`] instance.
@@ -116,8 +117,8 @@ impl<'a> WorkOsBuilder<'a> {
         WorkOs {
             base_url: self.base_url,
             key: self.key.to_owned(),
-            client,
-            phantom: PhantomData
+            client: Arc::new(client),
+            phantom: PhantomData,
         }
     }
 }
