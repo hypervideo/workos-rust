@@ -64,7 +64,7 @@ impl GetDirectoryGroup for DirectorySync<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<DirectoryGroup>()
+            .json::<DirectoryGroup, _>()
             .await?;
 
         Ok(directory_group)

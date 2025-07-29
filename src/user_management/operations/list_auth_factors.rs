@@ -81,7 +81,7 @@ impl ListAuthFactors for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<PaginatedList<AuthenticationFactor>>()
+            .json::<PaginatedList<AuthenticationFactor>, _>()
             .await?;
 
         Ok(organizations)

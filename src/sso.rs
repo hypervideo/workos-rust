@@ -14,7 +14,7 @@ use crate::WorkOs;
 ///
 /// [WorkOS Docs: SSO Guide](https://workos.com/docs/sso/guide)
 pub struct Sso<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> Sso<'a> {
