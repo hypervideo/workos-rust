@@ -8,18 +8,18 @@ where
 {
     /// Handles an unauthorized error from the WorkOS API by converting it into a
     /// [`WorkOsError::Unauthorized`] response.
-    fn handle_unauthorized_error<E>(self) -> WorkOsResult<Self, E>;
+    async fn handle_unauthorized_error<E>(self) -> WorkOsResult<Self, E>;
 
     /// Handles a generic error from the WorkOS API by converting it into a
     /// [`WorkOsError::RequestError`] response.
-    fn handle_generic_error<E>(self) -> WorkOsResult<Self, E>;
+    async fn handle_generic_error<E>(self) -> WorkOsResult<Self, E>;
 
     /// Handles an unauthorized or generic error from the WorkOS API.
-    fn handle_unauthorized_or_generic_error<E>(self) -> WorkOsResult<Self, E>;
+    async fn handle_unauthorized_or_generic_error<E>(self) -> WorkOsResult<Self, E>;
 }
 
 impl ResponseExt for Response {
-    fn handle_unauthorized_error<E>(self) -> WorkOsResult<Self, E> {
+    async fn handle_unauthorized_error<E>(self) -> WorkOsResult<Self, E> {
         if self.status() == StatusCode::UNAUTHORIZED {
             Err(WorkOsError::Unauthorized)
         } else {
@@ -27,14 +27,17 @@ impl ResponseExt for Response {
         }
     }
 
-    fn handle_generic_error<E>(self) -> WorkOsResult<Self, E> {
-        match self.error_for_status() {
-            Ok(response) => Ok(response),
-            Err(err) => Err(WorkOsError::RequestError(err)),
+    async fn handle_generic_error<E>(self) -> WorkOsResult<Self, E> {
+        if self.status().is_success() {
+            Ok(self)
+        } else {
+            let status = self.status();
+            let body = self.text().await.unwrap_or_else(|_| "Failed to read response body".to_string());
+            Err(WorkOsError::ApiError { status, body })
         }
     }
 
-    fn handle_unauthorized_or_generic_error<E>(self) -> WorkOsResult<Self, E> {
-        self.handle_unauthorized_error()?.handle_generic_error()
+    async fn handle_unauthorized_or_generic_error<E>(self) -> WorkOsResult<Self, E> {
+        self.handle_unauthorized_error().await?.handle_generic_error().await
     }
 }

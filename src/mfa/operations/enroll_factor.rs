@@ -136,7 +136,7 @@ impl EnrollFactor for Mfa<'_> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized_error()?
+            .handle_unauthorized_error().await?
             .handle_enroll_factor_error()
             .await?
             .json::<AuthenticationFactor>()
