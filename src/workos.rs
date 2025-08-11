@@ -24,7 +24,7 @@ impl WorkOs {
     }
 
     /// Returns a [`WorkOsBuilder`] that may be used to construct a WorkOS client.
-    pub fn builder(key: &ApiKey) -> WorkOsBuilder {
+    pub fn builder(key: &ApiKey) -> WorkOsBuilder<'_> {
         WorkOsBuilder::new(key)
     }
 
@@ -41,37 +41,37 @@ impl WorkOs {
     }
 
     /// Returns an [`AdminPortal`] instance.
-    pub fn admin_portal(&self) -> AdminPortal {
+    pub fn admin_portal(&self) -> AdminPortal<'_> {
         AdminPortal::new(self)
     }
 
     /// Returns a [`DirectorySync`] instance.
-    pub fn directory_sync(&self) -> DirectorySync {
+    pub fn directory_sync(&self) -> DirectorySync<'_> {
         DirectorySync::new(self)
     }
 
     /// Returns an [`Mfa`] instance.
-    pub fn mfa(&self) -> Mfa {
+    pub fn mfa(&self) -> Mfa<'_> {
         Mfa::new(self)
     }
 
     /// Returns an [`Organizations`] instance.
-    pub fn organizations(&self) -> Organizations {
+    pub fn organizations(&self) -> Organizations<'_> {
         Organizations::new(self)
     }
 
     /// Returns a [`Passwordless`] instance.
-    pub fn passwordless(&self) -> Passwordless {
+    pub fn passwordless(&self) -> Passwordless<'_> {
         Passwordless::new(self)
     }
 
     /// Returns an [`Sso`] instance.
-    pub fn sso(&self) -> Sso {
+    pub fn sso(&self) -> Sso<'_> {
         Sso::new(self)
     }
 
     /// Returns a [`UserManagement`] instance.
-    pub fn user_management(&self) -> UserManagement {
+    pub fn user_management(&self) -> UserManagement<'_> {
         UserManagement::new(self)
     }
 }
