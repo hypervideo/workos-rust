@@ -108,6 +108,13 @@ pub enum AuthenticateErrorWithCode {
         message: String,
     },
 
+    /// One-time code too many attempts error
+    #[error("one_time_code_too_many_attempts: {message}")]
+    OneTimeCodeTooManyAttempts {
+        /// A human-readable message describing the error.
+        message: String,
+    },
+
     /// Organization selection required error
     ///
     /// This error indicates that the user is a member of multiple organizations and must select which organization to sign in to.
@@ -154,6 +161,9 @@ impl AuthenticateErrorWithCode {
             AuthenticateErrorWithCode::MfaEnrollment { .. } => "mfa_enrollment",
             AuthenticateErrorWithCode::MfaChallenge { .. } => "mfa_challenge",
             AuthenticateErrorWithCode::OneTimeCodeExpired { .. } => "one_time_code_expired",
+            AuthenticateErrorWithCode::OneTimeCodeTooManyAttempts { .. } => {
+                "one_time_code_too_many_attempts"
+            }
             AuthenticateErrorWithCode::OrganizationSelectionRequired { .. } => {
                 "organization_selection_required"
             }
@@ -171,6 +181,7 @@ impl AuthenticateErrorWithCode {
             AuthenticateErrorWithCode::MfaEnrollment { message, .. } => message,
             AuthenticateErrorWithCode::MfaChallenge { message, .. } => message,
             AuthenticateErrorWithCode::OneTimeCodeExpired { message } => message,
+            AuthenticateErrorWithCode::OneTimeCodeTooManyAttempts { message } => message,
             AuthenticateErrorWithCode::OrganizationSelectionRequired { message, .. } => message,
             AuthenticateErrorWithCode::Other { message, .. } => message,
         }
