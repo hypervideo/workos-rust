@@ -50,7 +50,7 @@ impl GetProfile for Sso<'_> {
             .bearer_auth(access_token)
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?
+            .handle_unauthorized_or_generic_error().await?
             .json::<Profile>()
             .await?;
 

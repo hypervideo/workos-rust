@@ -155,7 +155,7 @@ impl ResetPassword for UserManagement<'_> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized_error()?
+            .handle_unauthorized_error().await?
             .handle_reset_password_error()
             .await?
             .json::<ResetPasswordResponse>()

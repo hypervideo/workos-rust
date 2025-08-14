@@ -51,7 +51,7 @@ impl GetJwks for UserManagement<'_> {
             .get(url)
             .send()
             .await?
-            .handle_generic_error()?
+            .handle_generic_error().await?
             .json::<JwkSet>()
             .await?;
 

@@ -155,7 +155,7 @@ impl EnrollAuthFactor for UserManagement<'_> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized_error()?
+            .handle_unauthorized_error().await?
             .handle_enroll_auth_factor_error()
             .await?
             .json::<EnrollAuthFactorResponse>()

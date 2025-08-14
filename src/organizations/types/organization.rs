@@ -40,6 +40,9 @@ pub struct Organization {
     /// The list of user email domains for the organization.
     pub domains: Vec<OrganizationDomain>,
 
+    /// The external ID of the organization.
+    pub external_id: Option<String>,
+
     /// The timestamps for the organization.
     #[serde(flatten)]
     pub timestamps: Timestamps,
