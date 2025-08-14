@@ -14,7 +14,7 @@ use crate::WorkOs;
 ///
 /// [WorkOS Docs: User Management](https://workos.com/docs/user-management)
 pub struct UserManagement<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> UserManagement<'a> {

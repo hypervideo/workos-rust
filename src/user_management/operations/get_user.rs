@@ -56,7 +56,7 @@ impl GetUser for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<User>()
+            .json::<User, _>()
             .await?;
 
         Ok(user)

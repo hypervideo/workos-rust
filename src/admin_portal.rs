@@ -12,7 +12,7 @@ use crate::WorkOs;
 ///
 /// [WorkOS Docs: Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
 pub struct AdminPortal<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> AdminPortal<'a> {

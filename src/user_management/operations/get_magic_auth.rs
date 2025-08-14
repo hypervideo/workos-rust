@@ -56,7 +56,7 @@ impl GetMagicAuth for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<MagicAuth>()
+            .json::<MagicAuth, _>()
             .await?;
 
         Ok(organization)

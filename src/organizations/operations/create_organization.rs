@@ -89,7 +89,7 @@ impl CreateOrganization for Organizations<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<Organization>()
+            .json::<Organization, _>()
             .await?;
 
         Ok(organization)

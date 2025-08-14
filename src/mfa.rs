@@ -14,7 +14,7 @@ use crate::WorkOs;
 ///
 /// [WorkOS Docs: MFA Guide](https://workos.com/docs/mfa/guide)
 pub struct Mfa<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> Mfa<'a> {
