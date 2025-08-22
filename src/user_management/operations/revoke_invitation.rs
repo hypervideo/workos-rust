@@ -14,25 +14,21 @@ impl From<RevokeInvitationError> for WorkOsError<RevokeInvitationError> {
     }
 }
 
-/// [WorkOS Docs: Revokes an existing invitation](https://workos.com/docs/reference/user-management/invitation/revoke
+/// [WorkOS Docs: Revoke an invitation](https://workos.com/docs/reference/user-management/invitation/revoke)
 #[async_trait]
 pub trait RevokeInvitation {
     /// Revokes an existing invitation.
     ///
-    /// [WorkOS Docs: Revokes an existing invitation](https://workos.com/docs/reference/user-management/invitation/revoke)
+    /// [WorkOS Docs: Revoke an invitation](https://workos.com/docs/reference/user-management/invitation/revoke)
     ///
     /// # Examples
     ///
     /// ```
-    /// use std::collections::HashSet;
-    ///
     /// # use workos_sdk::WorkOsResult;
     /// # use workos_sdk::user_management::*;
-    /// use workos_sdk::{ApiKey, WorkOs};    ///
-    /// #
-    /// use workos_sdk::organizations::OrganizationId;
+    /// use workos_sdk::{ApiKey, WorkOs};
     ///
-    /// async fn run() -> WorkOsResult<(), RevokeInvitationError> {
+    /// # async fn run() -> WorkOsResult<(), RevokeInvitationError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let invitation = workos
@@ -44,7 +40,7 @@ pub trait RevokeInvitation {
     /// ```
     async fn revoke_invitation(
         &self,
-        id: &InvitationId,
+        invitation_id: &InvitationId,
     ) -> WorkOsResult<Invitation, RevokeInvitationError>;
 }
 
@@ -52,14 +48,12 @@ pub trait RevokeInvitation {
 impl RevokeInvitation for UserManagement<'_> {
     async fn revoke_invitation(
         &self,
-        id: &InvitationId,
+        invitation_id: &InvitationId,
     ) -> WorkOsResult<Invitation, RevokeInvitationError> {
-        let url = self
-            .workos
-            .base_url()
-            .join(&format!("/user_management/invitations/{id}/revoke"))?;
-
-        let invitation = self
+        let url = self.workos.base_url().join(&format!(
+            "/user_management/invitations/{invitation_id}/revoke"
+        ))?;
+        let user = self
             .workos
             .client()
             .post(url)
@@ -70,7 +64,7 @@ impl RevokeInvitation for UserManagement<'_> {
             .json::<Invitation>()
             .await?;
 
-        Ok(invitation)
+        Ok(user)
     }
 }
 
@@ -79,6 +73,7 @@ mod test {
     use serde_json::json;
     use tokio;
 
+    use crate::user_management::InvitationId;
     use crate::{ApiKey, WorkOs};
 
     use super::*;
@@ -93,27 +88,25 @@ mod test {
             .build();
 
         server
-            .mock(
-                "POST",
-                "/user_management/invitations/invitation_01E4ZCR3C56J083X43JQXF3JK5/revoke",
-            )
+            .mock("POST", "/user_management/invitations/invitation_01E4ZCR3C56J083X43JQXF3JK5/revoke")
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
                 json!({
-                  "object": "invitation",
-                  "id": "invitation_01E4ZCR3C56J083X43JQXF3JK5",
-                  "email": "marcelina.davis@example.com",
-                  "state": "pending",
-                  "accepted_at": null,
-                  "revoked_at": "2021-07-01T19:07:33.155Z",
-                  "expires_at": "2021-07-01T19:07:33.155Z",
-                  "token": "Z1uX3RbwcIl5fIGJJJCXXisdI",
-                  "accept_invitation_url": "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
-                  "organization_id": "org_01E4ZCR3C56J083X43JQXF3JK5",
-                  "inviter_user_id": "user_01HYGBX8ZGD19949T3BM4FW1C3",
-                  "created_at": "2021-06-25T19:07:33.155Z",
-                  "updated_at": "2021-06-25T19:07:33.155Z"
+                    "object": "invitation",
+                    "id": "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+                    "email": "marcelina.davis@example.com",
+                    "state": "revoked",
+                    "accepted_at": null,
+                    "revoked_at": "2021-07-01T19:07:33.155Z",
+                    "expires_at": "2021-07-01T19:07:33.155Z",
+                    "token": "Z1uX3RbwcIl5fIGJJJCXXisdI",
+                    "accept_invitation_url": "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
+                    "organization_id": "org_01E4ZCR3C56J083X43JQXF3JK5",
+                    "inviter_user_id": "user_01HYGBX8ZGD19949T3BM4FW1C3",
+                    "accepted_user_id": null,
+                    "created_at": "2021-06-25T19:07:33.155Z",
+                    "updated_at": "2021-06-25T19:07:33.155Z"
                 })
                 .to_string(),
             )
@@ -126,7 +119,10 @@ mod test {
             .await
             .unwrap();
 
-        assert_eq!(invitation.email, String::from("marcelina.davis@example.com"));
+        assert_eq!(
+            invitation.id,
+            InvitationId::from("invitation_01E4ZCR3C56J083X43JQXF3JK5")
+        );
         assert!(invitation.revoked_at.is_some());
     }
 }

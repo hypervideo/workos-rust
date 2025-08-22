@@ -16,10 +16,11 @@ pub struct SendInvitationParams<'a> {
     pub organization_id: Option<&'a OrganizationId>,
 
     /// How many days the invitations will be valid for.
-    /// Must be between 1 and 30 days. Defaults to 7 days if not specified.
-    pub expires_in_days: Option<&'a usize>,
+    pub expires_in_days: Option<u8>,
 
-    /// The ID of the user who invites the recipient. The invitation email will mention the name of this user.
+    /// The ID of the user who invites the recipient.
+    ///
+    /// The invitation email will mention the name of this user.
     pub inviter_user_id: Option<&'a UserId>,
 
     /// The role that the recipient will receive when they join the organization in the invitation.
@@ -46,25 +47,21 @@ pub trait SendInvitation {
     /// # Examples
     ///
     /// ```
-    /// use std::collections::HashSet;
-    ///
     /// # use workos_sdk::WorkOsResult;
     /// # use workos_sdk::user_management::*;
-    /// use workos_sdk::{ApiKey, WorkOs};    ///
-    /// #
-    /// use workos_sdk::organizations::OrganizationId;
+    /// use workos_sdk::{ApiKey, WorkOs};
     ///
-    /// async fn run() -> WorkOsResult<(), SendInvitationError> {
+    /// # async fn run() -> WorkOsResult<(), SendInvitationError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let invitation = workos
     ///     .user_management()
     ///     .send_invitation(&SendInvitationParams {
-    ///          email: "marcelina.davis@example.com",
-    ///          organization_id: Some(&OrganizationId::from("org_01E4ZCR3C56J083X43JQXF3JK5")),
-    ///          expires_in_days: Some(&7),
-    ///          inviter_user_id: Some(&UserId::from("user_01HYGBX8ZGD19949T3BM4FW1C3")),
-    ///          role_slug: Some("member"),
+    ///          email: "marcelina@example.com",
+    ///          organization_id: None,
+    ///          expires_in_days: None,
+    ///          inviter_user_id: None,
+    ///          role_slug: None,
     ///     })
     ///     .await?;
     /// # Ok(())
@@ -86,8 +83,7 @@ impl SendInvitation for UserManagement<'_> {
             .workos
             .base_url()
             .join("/user_management/invitations")?;
-
-        let invitation = self
+        let user = self
             .workos
             .client()
             .post(url)
@@ -99,7 +95,7 @@ impl SendInvitation for UserManagement<'_> {
             .json::<Invitation>()
             .await?;
 
-        Ok(invitation)
+        Ok(user)
     }
 }
 
@@ -108,6 +104,7 @@ mod test {
     use serde_json::json;
     use tokio;
 
+    use crate::user_management::InvitationId;
     use crate::{ApiKey, WorkOs};
 
     use super::*;
@@ -122,27 +119,24 @@ mod test {
             .build();
 
         server
-            .mock(
-                "POST",
-                "/user_management/invitations",
-            )
+            .mock("POST", "/user_management/invitations")
             .match_header("Authorization", "Bearer sk_example_123456789")
-            .with_status(200)
+            .with_status(201)
             .with_body(
                 json!({
-                  "object": "invitation",
-                  "id": "invitation_01E4ZCR3C56J083X43JQXF3JK5",
-                  "email": "marcelina.davis@example.com",
-                  "state": "pending",
-                  "accepted_at": null,
-                  "revoked_at": null,
-                  "expires_at": "2021-07-01T19:07:33.155Z",
-                  "token": "Z1uX3RbwcIl5fIGJJJCXXisdI",
-                  "accept_invitation_url": "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
-                  "organization_id": "org_01E4ZCR3C56J083X43JQXF3JK5",
-                  "inviter_user_id": "user_01HYGBX8ZGD19949T3BM4FW1C3",
-                  "created_at": "2021-06-25T19:07:33.155Z",
-                  "updated_at": "2021-06-25T19:07:33.155Z"
+                    "object": "invitation",
+                    "id": "invitation_01E4ZCR3C56J083X43JQXF3JK5",
+                    "email": "marcelina.davis@example.com",
+                    "state": "pending",
+                    "accepted_at": null,
+                    "revoked_at": null,
+                    "expires_at": "2021-07-01T19:07:33.155Z",
+                    "token": "Z1uX3RbwcIl5fIGJJJCXXisdI",
+                    "accept_invitation_url": "https://your-app.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
+                    "organization_id": "org_01E4ZCR3C56J083X43JQXF3JK5",
+                    "inviter_user_id": "user_01HYGBX8ZGD19949T3BM4FW1C3",
+                    "created_at": "2021-06-25T19:07:33.155Z",
+                    "updated_at": "2021-06-25T19:07:33.155Z"
                 })
                 .to_string(),
             )
@@ -152,15 +146,18 @@ mod test {
         let invitation = workos
             .user_management()
             .send_invitation(&SendInvitationParams {
-                email: "marcelina.davis@example.com",
-                organization_id: Some(&OrganizationId::from("org_01E4ZCR3C56J083X43JQXF3JK5")),
-                expires_in_days: Some(&7),
-                inviter_user_id: Some(&UserId::from("user_01HYGBX8ZGD19949T3BM4FW1C3")),
-                role_slug: Some("member"),
+                email: "marcelina@example.com",
+                organization_id: None,
+                expires_in_days: None,
+                inviter_user_id: None,
+                role_slug: None,
             })
             .await
             .unwrap();
 
-        assert_eq!(invitation.email, String::from("marcelina.davis@example.com"))
+        assert_eq!(
+            invitation.id,
+            InvitationId::from("invitation_01E4ZCR3C56J083X43JQXF3JK5")
+        )
     }
 }
