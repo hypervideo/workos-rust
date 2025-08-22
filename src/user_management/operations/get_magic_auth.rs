@@ -103,14 +103,14 @@ mod test {
             .create_async()
             .await;
 
-        let organization = workos
+        let magic_auth = workos
             .user_management()
             .get_magic_auth(&MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5"))
             .await
             .unwrap();
 
         assert_eq!(
-            organization.id,
+            magic_auth.id,
             MagicAuthId::from("magic_auth_01E4ZCR3C56J083X43JQXF3JK5")
         )
     }

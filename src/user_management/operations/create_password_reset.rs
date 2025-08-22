@@ -73,8 +73,6 @@ pub trait CreatePasswordReset {
     /// # Examples
     ///
     /// ```
-    /// use std::collections::HashSet;
-    ///
     /// # use workos_sdk::WorkOsResult;
     /// # use workos_sdk::user_management::*;
     /// use workos_sdk::{ApiKey, WorkOs};
