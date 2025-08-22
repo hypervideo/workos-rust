@@ -2,8 +2,8 @@
 name = "workos-sdk"
 version = "0.3.0"
 description = "Rust SDK for interacting with the WorkOS API."
-repository = "https://github.com/hypervideo/workos-rust"
-authors = ["Hyper <info@hyper.video>", "WorkOS"]
+repository = "https://github.com/RustForWeb/workos"
+authors = ["Rust for Web <info@rustforweb.org>", "WorkOS"]
 license = "MIT"
 edition = "2024"
 
