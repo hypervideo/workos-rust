@@ -1,25 +1,25 @@
 use async_trait::async_trait;
 use thiserror::Error;
 
-use crate::organizations::{Organization, OrganizationId, Organizations};
+use crate::organizations::{Organization, Organizations};
 use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
-/// An error returned from [`GetOrganization`].
+/// An error returned from [`GetOrganizationByExternalId`].
 #[derive(Debug, Error)]
-pub enum GetOrganizationError {}
+pub enum GetOrganizationByExternalIdError {}
 
-impl From<GetOrganizationError> for WorkOsError<GetOrganizationError> {
-    fn from(err: GetOrganizationError) -> Self {
+impl From<GetOrganizationByExternalIdError> for WorkOsError<GetOrganizationByExternalIdError> {
+    fn from(err: GetOrganizationByExternalIdError) -> Self {
         Self::Operation(err)
     }
 }
 
-/// [WorkOS Docs: Get an Organization](https://workos.com/docs/reference/sso/organization/get)
+/// [WorkOS Docs: Get an Organization by External ID](https://workos.com/docs/reference/sso/organization/get-by-external-id)
 #[async_trait]
-pub trait GetOrganization {
-    /// Retrieves an [`Organization`] by its ID.
+pub trait GetOrganizationByExternalId {
+    /// Retrieves an [`Organization`] by its external ID.
     ///
-    /// [WorkOS Docs: Get an Organization](https://workos.com/docs/reference/sso/organization/get)
+    /// [WorkOS Docs: Get an Organization by External ID](https://workos.com/docs/reference/sso/organization/get-by-external-id)
     ///
     /// # Examples
     ///
@@ -28,32 +28,33 @@ pub trait GetOrganization {
     /// # use workos_sdk::organizations::*;
     /// use workos_sdk::{ApiKey, WorkOs};
     ///
-    /// # async fn run() -> WorkOsResult<(), GetOrganizationError> {
+    /// # async fn run() -> WorkOsResult<(), GetOrganizationByExternalIdError> {
     /// let workos = WorkOs::new(&ApiKey::from("sk_example_123456789"));
     ///
     /// let organization = workos
     ///     .organizations()
-    ///     .get_organization(&OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"))
+    ///     .get_organization_by_external_id("2fe01467-f7ea-4dd2-8b79-c2b4f56d0191")
     ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
-    async fn get_organization(
+    async fn get_organization_by_external_id(
         &self,
-        id: &OrganizationId,
-    ) -> WorkOsResult<Organization, GetOrganizationError>;
+        external_id: &str,
+    ) -> WorkOsResult<Organization, GetOrganizationByExternalIdError>;
 }
 
 #[async_trait]
-impl GetOrganization for Organizations<'_> {
-    async fn get_organization(
+impl GetOrganizationByExternalId for Organizations<'_> {
+    async fn get_organization_by_external_id(
         &self,
-        id: &OrganizationId,
-    ) -> WorkOsResult<Organization, GetOrganizationError> {
+        external_id: &str,
+    ) -> WorkOsResult<Organization, GetOrganizationByExternalIdError> {
+        let external_id = urlencoding::encode(external_id);
         let url = self
             .workos
             .base_url()
-            .join(&format!("/organizations/{id}"))?;
+            .join(&format!("/organizations/external_id/{external_id}"))?;
         let organization = self
             .workos
             .client()
@@ -61,7 +62,8 @@ impl GetOrganization for Organizations<'_> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .handle_unauthorized_or_generic_error().await?
+            .handle_unauthorized_or_generic_error()
+            .await?
             .json::<Organization>()
             .await?;
 
@@ -79,7 +81,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn it_calls_the_get_organization_endpoint() {
+    async fn it_calls_the_get_organization_by_external_id_endpoint() {
         let mut server = mockito::Server::new_async().await;
 
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
@@ -88,7 +90,10 @@ mod test {
             .build();
 
         server
-            .mock("GET", "/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT")
+            .mock(
+                "GET",
+                "/organizations/external_id/2fe01467-f7ea-4dd2-8b79-c2b4f56d0191",
+            )
             .match_header("Authorization", "Bearer sk_example_123456789")
             .with_status(200)
             .with_body(
@@ -97,17 +102,13 @@ mod test {
                   "object": "organization",
                   "name": "Foo Corporation",
                   "allow_profiles_outside_organization": false,
+                  "external_id": "2fe01467-f7ea-4dd2-8b79-c2b4f56d0191",
                   "created_at": "2021-06-25T19:07:33.155Z",
                   "updated_at": "2021-06-25T19:07:33.155Z",
                   "domains": [
                     {
                       "domain": "foo-corp.com",
                       "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                      "object": "organization_domain"
-                    },
-                    {
-                      "domain": "another-foo-corp-domain.com",
-                      "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
                       "object": "organization_domain"
                     }
                   ]
@@ -119,13 +120,14 @@ mod test {
 
         let organization = workos
             .organizations()
-            .get_organization(&OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT"))
+            .get_organization_by_external_id("2fe01467-f7ea-4dd2-8b79-c2b4f56d0191")
             .await
             .unwrap();
 
         assert_eq!(
-            organization.id,
-            OrganizationId::from("org_01EHZNVPK3SFK441A1RGBFSHRT")
-        )
+            organization.external_id,
+            Some("2fe01467-f7ea-4dd2-8b79-c2b4f56d0191".to_string())
+        );
+        assert_eq!(organization.name, "Foo Corporation");
     }
 }

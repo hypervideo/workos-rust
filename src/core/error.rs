@@ -22,6 +22,15 @@ pub enum WorkOsError<E> {
     /// An unhandled error occurred with the API request.
     #[error("request error")]
     RequestError(#[from] reqwest::Error),
+
+    /// An API error with status code and response body.
+    #[error("API error {status}: {body}")]
+    ApiError {
+        /// The HTTP status code returned by the API.
+        status: reqwest::StatusCode,
+        /// The response body text containing error details.
+        body: String,
+    },
 }
 
 /// A WorkOS SDK result.

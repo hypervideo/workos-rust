@@ -50,6 +50,7 @@ impl GetUserByExternalId for UserManagement<'_> {
         &self,
         external_id: &str,
     ) -> WorkOsResult<User, GetUserByExternalIdError> {
+        let external_id = urlencoding::encode(external_id);
         let url = self
             .workos
             .base_url()
@@ -61,7 +62,7 @@ impl GetUserByExternalId for UserManagement<'_> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?
+            .handle_unauthorized_or_generic_error().await?
             .json::<User>()
             .await?;
 

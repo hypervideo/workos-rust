@@ -1,30 +1,30 @@
-use std::collections::HashSet;
-
 use async_trait::async_trait;
 use serde::Serialize;
 use thiserror::Error;
 
 use crate::organizations::{Organization, Organizations};
-use crate::{ResponseExt, WorkOsError, WorkOsResult};
+use crate::{Metadata, ResponseExt, WorkOsError, WorkOsResult};
+
+#[derive(Debug, Serialize)]
+/// The data for an organization domain.
+pub struct OrganizationDomainData<'a> {
+    /// The domain to be added to the organization. This should be a domain owned by the organization, and not a common consumer domain like gmail.com.
+    pub domain: &'a str,
+    /// The verification state of the domain. 'pending' or 'verified'
+    pub state: &'a str,
+}
 
 /// The parameters for [`CreateOrganization`].
 #[derive(Debug, Serialize)]
 pub struct CreateOrganizationParams<'a> {
-    /// The name of the organization.
+    /// A descriptive name for the Organization. This field does not need to be unique.
     pub name: &'a str,
-
-    /// Whether the connections within this organization should allow profiles
-    /// that do not have a domain that is present in the set of the organization's
-    /// user email domains.
     ///
-    /// See [here](https://workos.com/docs/sso/guide/frequently-asked-questions#allow-profiles-outside-organization)
-    /// for more details.
-    pub allow_profiles_outside_organization: Option<&'a bool>,
-
-    /// The domains of the organization.
-    ///
-    /// At least one domain is required unless `allow_profiles_outside_organization` is `true`.
-    pub domains: HashSet<&'a str>,
+    pub domain_data: Vec<OrganizationDomainData<'a>>,
+    /// The external ID of the Organization.
+    pub external_id: Option<&'a str>,
+    /// Object containing metadata key/value pairs associated with the organization.
+    pub metadata: Option<Metadata>,
 }
 
 /// An error returned from [`CreateOrganization`].
@@ -88,7 +88,8 @@ impl CreateOrganization for Organizations<'_> {
             .json(&params)
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?
+            .handle_unauthorized_or_generic_error()
+            .await?
             .json::<Organization>()
             .await?;
 
@@ -144,8 +145,12 @@ mod test {
             .organizations()
             .create_organization(&CreateOrganizationParams {
                 name: "Foo Corp",
-                allow_profiles_outside_organization: Some(&false),
-                domains: HashSet::from(["foo-corp.com"]),
+                domain_data: vec![OrganizationDomainData {
+                    domain: "foo-corp.com",
+                    state: "pending",
+                }],
+                external_id: None,
+                metadata: None,
             })
             .await
             .unwrap();
