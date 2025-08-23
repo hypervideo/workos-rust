@@ -3,9 +3,11 @@ use url::{ParseError, Url};
 use crate::ApiKey;
 use crate::admin_portal::AdminPortal;
 use crate::directory_sync::DirectorySync;
+use crate::events::Events;
 use crate::mfa::Mfa;
 use crate::organizations::Organizations;
 use crate::passwordless::Passwordless;
+use crate::roles::Roles;
 use crate::sso::Sso;
 use crate::user_management::UserManagement;
 
@@ -50,6 +52,11 @@ impl WorkOs {
         DirectorySync::new(self)
     }
 
+    /// Returns a [`Events`] instance.
+    pub fn events(&self) -> Events<'_> {
+        Events::new(self)
+    }
+
     /// Returns an [`Mfa`] instance.
     pub fn mfa(&self) -> Mfa<'_> {
         Mfa::new(self)
@@ -63,6 +70,11 @@ impl WorkOs {
     /// Returns a [`Passwordless`] instance.
     pub fn passwordless(&self) -> Passwordless<'_> {
         Passwordless::new(self)
+    }
+
+    /// Returns an [`Roles`] instance.
+    pub fn roles(&self) -> Roles<'_> {
+        Roles::new(self)
     }
 
     /// Returns an [`Sso`] instance.

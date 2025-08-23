@@ -20,7 +20,7 @@ pub struct MagicAuthId(String);
 pub struct MagicAuthCode(String);
 
 /// [WorkOS Docs: Magic Auth](https://workos.com/docs/reference/user-management/magic-auth)
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MagicAuth {
     /// The unique ID of the Magic Auth code.
     pub id: MagicAuthId,
@@ -36,6 +36,26 @@ pub struct MagicAuth {
 
     /// The one-time code that was emailed to the user.
     pub code: MagicAuthCode,
+
+    /// The timestamps for the user.
+    #[serde(flatten)]
+    pub timestamps: Timestamps,
+}
+
+/// [WorkOS Docs: Magic Auth events](https://workos.com/docs/events/magic-auth)
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MagicAuthEvent {
+    /// The unique ID of the Magic Auth code.
+    pub id: MagicAuthId,
+
+    /// The unique ID of the user.
+    pub user_id: UserId,
+
+    /// The email address of the user.
+    pub email: String,
+
+    /// The timestamp indicating when the Magic Auth code expires.
+    pub expires_at: Timestamp,
 
     /// The timestamps for the user.
     #[serde(flatten)]

@@ -12,7 +12,7 @@ use crate::{Metadata, Timestamp, Timestamps};
 pub struct UserId(String);
 
 /// [WorkOS Docs: User](https://workos.com/docs/reference/user-management/user)
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct User {
     /// The unique ID of the user.
     pub id: UserId,

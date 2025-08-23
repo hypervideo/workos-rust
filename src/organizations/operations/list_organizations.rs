@@ -132,14 +132,24 @@ mod test {
                       "updated_at": "2021-06-25T19:07:33.155Z",
                       "domains": [
                         {
-                          "domain": "foo-corp.com",
+                          "object": "organization_domain",
                           "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                          "object": "organization_domain"
+                          "domain": "foo-corp.com",
+                          "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                          "state": "verified",
+                          "verification_strategy": "dns",
+                          "created_at": "2021-06-25T19:07:33.155Z",
+                          "updated_at": "2021-06-25T19:07:33.155Z",
                         },
                         {
-                          "domain": "another-foo-corp-domain.com",
+                          "object": "organization_domain",
                           "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
-                          "object": "organization_domain"
+                          "domain": "another-foo-corp-domain.com",
+                          "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                          "state": "verified",
+                          "verification_strategy": "dns",
+                          "created_at": "2021-06-25T19:07:33.155Z",
+                          "updated_at": "2021-06-25T19:07:33.155Z",
                         }
                       ]
                     }
@@ -195,9 +205,26 @@ mod test {
                       "updated_at": "2021-06-25T19:07:33.155Z",
                       "domains": [
                         {
-                          "domain": "foo-corp.com",
+                          "object": "organization_domain",
                           "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
-                          "object": "organization_domain"
+                          "domain": "foo-corp.com",
+                          "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                          "state": "verified",
+                          "verification_strategy": "dns",
+                          "verification_token": "m5Oztg3jdK4NJLgs8uIlIprMw",
+                          "created_at": "2021-06-25T19:07:33.155Z",
+                          "updated_at": "2021-06-25T19:07:33.155Z"
+                        },
+                        {
+                          "object": "organization_domain",
+                          "id": "org_domain_01EHZNS0H9W90A90FV79GAB6AB",
+                          "domain": "another-foo-corp-domain.com",
+                          "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+                          "state": "verified",
+                          "verification_strategy": "dns",
+                          "verification_token": "m5Oztg3jdK4NJLgs8uIlIprMw",
+                          "created_at": "2021-06-25T19:07:33.155Z",
+                          "updated_at": "2021-06-25T19:07:33.155Z"
                         }
                       ]
                     }

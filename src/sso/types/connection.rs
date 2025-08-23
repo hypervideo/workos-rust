@@ -47,6 +47,16 @@ pub struct Connection {
     pub timestamps: Timestamps,
 }
 
+/// [WorkOS Docs: Connection events](https://workos.com/docs/events/connection)
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ConnectionEvent {
+    /// The ID of the connection.
+    pub id: ConnectionId,
+
+    /// The ID of the associated [`Organization`](crate::organizations::Organization) for this connection.
+    pub organization_id: Option<OrganizationId>,
+}
+
 #[cfg(test)]
 mod test {
     use serde_json::json;

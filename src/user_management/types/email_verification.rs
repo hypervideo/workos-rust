@@ -20,7 +20,7 @@ pub struct EmailVerificationId(String);
 pub struct EmailVerificationCode(String);
 
 /// [WorkOS Docs: Email verification](https://workos.com/docs/reference/user-management/email-verification)
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EmailVerification {
     /// The unique ID of the email verification code.
     pub id: EmailVerificationId,
@@ -36,6 +36,26 @@ pub struct EmailVerification {
 
     /// The one-time code that was emailed to the user.
     pub code: EmailVerificationCode,
+
+    /// The timestamps for the user.
+    #[serde(flatten)]
+    pub timestamps: Timestamps,
+}
+
+/// [WorkOS Docs: Email verification events](https://workos.com/docs/events/email-verification)
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EmailVerificationEvent {
+    /// The unique ID of the email verification code.
+    pub id: EmailVerificationId,
+
+    /// The unique ID of the user.
+    pub user_id: UserId,
+
+    /// The email address of the user.
+    pub email: String,
+
+    /// The timestamp indicating when the email verification code expires.
+    pub expires_at: Timestamp,
 
     /// The timestamps for the user.
     #[serde(flatten)]

@@ -1,11 +1,11 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{organizations::OrganizationId, sso::AccessToken};
 
 use super::{Impersonator, RefreshToken, User};
 
 /// The authentication method used to initiate the session.
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum AuthenticationMethod {
     /// Single Sign-On (SSO)
     SSO,
