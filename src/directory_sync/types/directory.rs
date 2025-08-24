@@ -2,7 +2,7 @@ use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
 use crate::directory_sync::DirectoryType;
-use crate::organizations::OrganizationId;
+use crate::organizations::{OrganizationDomainId, OrganizationId};
 use crate::{KnownOrUnknown, Timestamps};
 
 /// The ID of a [`Directory`].
@@ -35,7 +35,7 @@ pub enum DirectoryState {
 }
 
 /// [WorkOS Docs: Directory](https://workos.com/docs/reference/directory-sync/directory)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Directory {
     /// The ID of the directory.
     pub id: DirectoryId,
@@ -54,6 +54,42 @@ pub struct Directory {
 
     /// The URL associated with an Enterprise Client.
     pub domain: Option<String>,
+
+    /// The timestamps for the Directory.
+    #[serde(flatten)]
+    pub timestamps: Timestamps,
+}
+
+/// An organization domain of a [`DirectoryEvent`].
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DirectoryEventDomain {
+    /// Unique identifier of the organization domain.
+    pub id: OrganizationDomainId,
+
+    /// Domain for the organization domain.
+    pub domain: String,
+}
+
+/// [WorkOS Docs: Directory Sync events](https://workos.com/docs/events/directory-sync)
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DirectoryEvent {
+    /// The ID of the directory.
+    pub id: DirectoryId,
+
+    /// The ID of the associated [`Organization`](crate::organizations::Organization) for this directory.
+    pub organization_id: Option<OrganizationId>,
+
+    /// The type of the directory.
+    pub r#type: KnownOrUnknown<DirectoryType, String>,
+
+    /// The state of the directory.
+    pub state: KnownOrUnknown<DirectoryState, String>,
+
+    /// The name of the directory.
+    pub name: String,
+
+    /// The domains of the directory.
+    pub domains: Vec<DirectoryEventDomain>,
 
     /// The timestamps for the Directory.
     #[serde(flatten)]

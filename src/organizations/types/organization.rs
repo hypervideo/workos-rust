@@ -1,7 +1,7 @@
 use derive_more::{Deref, Display, From};
 use serde::{Deserialize, Serialize};
 
-use crate::Timestamps;
+use crate::{Timestamps, organizations::OrganizationDomain};
 
 /// The ID of an [`Organization`].
 #[derive(
@@ -43,21 +43,4 @@ pub struct Organization {
     /// The timestamps for the organization.
     #[serde(flatten)]
     pub timestamps: Timestamps,
-}
-
-/// The ID of an [`OrganizationDomain`].
-#[derive(
-    Clone, Debug, Deref, Display, From, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
-)]
-#[from(forward)]
-pub struct OrganizationDomainId(String);
-
-/// [WorkOS Docs: Organization Domain](https://workos.com/docs/reference/organization-domain)
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct OrganizationDomain {
-    /// The ID of the organization domain.
-    pub id: OrganizationDomainId,
-
-    /// The domain.
-    pub domain: String,
 }
