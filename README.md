@@ -4,9 +4,13 @@
 [![Docs.rs](https://docs.rs/workos-sdk/badge.svg)](https://docs.rs/workos-sdk/)
 [![License](https://img.shields.io/crates/l/workos-sdk.svg)](https://github.com/RustForWeb/workos/blob/main/LICENSE)
 
-> **Note:** This is an experimental SDK and breaking changes may occur. Use this SDK in production at your own risk, since we can't guarantee its stability.
-
 The WorkOS library for Rust provides convenient access to the WorkOS API from applications written in Rust.
+
+## Documentation
+
+Documentation for the crate is available on [Docs.rs](https://docs.rs/):
+
+- [`workos-sdk`](https://docs.rs/workos-sdk/latest/workos_sdk/)
 
 ## Credits
 

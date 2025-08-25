@@ -5,13 +5,9 @@ on:
     push:
         branches:
             - main
-            
+
 permissions:
     contents: read
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
     lint:
@@ -30,20 +26,26 @@ jobs:
               with:
                   components: clippy, rustfmt
 
+            - name: Install Cargo Binary Install
+              uses: cargo-bins/cargo-binstall@main
+
             - name: Install crates
-              run: cargo install cargo-deny cargo-machete
+              run: cargo binstall -y --force cargo-deny cargo-machete cargo-sort
 
             - name: Lint
               run: cargo clippy --all-features --locked
-
-            - name: Check formatting
-              run: cargo fmt --all --check
 
             - name: Check dependencies
               run: cargo deny check
 
             - name: Check unused dependencies
               run: cargo machete
+
+            - name: Check manifest formatting
+              run: cargo sort --workspace --check
+
+            - name: Check formatting
+              run: cargo fmt --all --check
 
     test:
         name: Test

@@ -1,0 +1,15 @@
+{
+    "name": "@rustforweb/workos",
+    "description": "Rust SDK for interacting with the WorkOS API.",
+    "author": "Rust For Web <info@rustforweb.org>",
+    "repository": "github:RustForWeb/workos",
+    "license": "MIT",
+    "private": true,
+    "scripts": {},
+    "devDependencies": {
+        "prettier": "^3.6.2"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}
