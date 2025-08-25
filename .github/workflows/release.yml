@@ -45,7 +45,7 @@ jobs:
 
             - name: Extract version
               id: extract-version
-              run: echo "VERSION=v$(toml get Cargo.toml workspace.package.version --raw)" >> "$GITHUB_OUTPUT"
+              run: echo "VERSION=v$(toml get Cargo.toml package.version --raw)" >> "$GITHUB_OUTPUT"
 
             - name: Add changes
               run: git add .
