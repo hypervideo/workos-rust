@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use reqwest::{Response, StatusCode};
+use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -65,13 +65,13 @@ where
 }
 
 #[async_trait]
-impl HandleEnrollFactorError for Response {
+impl<'a> HandleEnrollFactorError for Box<dyn crate::traits::ClientResponse + 'a> {
     async fn handle_enroll_factor_error(self) -> WorkOsResult<Self, EnrollFactorError> {
         match self.error_for_status_ref() {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::UNPROCESSABLE_ENTITY) => {
-                    let error = self.json::<WorkOsApiError>().await?;
+                    let error = self.json::<WorkOsApiError, _>().await?;
 
                     Err(match error.code.as_str() {
                         "invalid_phone_number" => {
@@ -139,7 +139,7 @@ impl EnrollFactor for Mfa<'_> {
             .handle_unauthorized_error()?
             .handle_enroll_factor_error()
             .await?
-            .json::<AuthenticationFactor>()
+            .json::<AuthenticationFactor, _>()
             .await?;
 
         Ok(factor)

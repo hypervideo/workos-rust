@@ -14,7 +14,7 @@ use crate::WorkOs;
 ///
 /// [WorkOS Docs: Magic Link Guide](https://workos.com/docs/magic-link/guide)
 pub struct Passwordless<'a> {
-    workos: &'a WorkOs,
+    workos: &'a WorkOs<'a>,
 }
 
 impl<'a> Passwordless<'a> {

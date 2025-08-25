@@ -1,3 +1,6 @@
+use std::marker::PhantomData;
+use std::sync::Arc;
+
 use url::{ParseError, Url};
 
 use crate::ApiKey;
@@ -9,17 +12,19 @@ use crate::organizations::Organizations;
 use crate::passwordless::Passwordless;
 use crate::roles::Roles;
 use crate::sso::Sso;
+use crate::traits::Client;
 use crate::user_management::UserManagement;
 
 /// The WorkOS client.
 #[derive(Clone)]
-pub struct WorkOs {
+pub struct WorkOs<'n> {
     base_url: Url,
     key: ApiKey,
-    client: reqwest::Client,
+    client: Arc<dyn crate::traits::Client + Send + Sync + 'n>,
+    phantom: PhantomData<&'n ()>,
 }
 
-impl WorkOs {
+impl WorkOs<'_> {
     /// Returns a new instance of the WorkOS client using the provided API key.
     pub fn new(key: &ApiKey) -> Self {
         WorkOsBuilder::new(key).build()
@@ -38,8 +43,8 @@ impl WorkOs {
         &self.key
     }
 
-    pub(crate) fn client(&self) -> &reqwest::Client {
-        &self.client
+    pub(crate) fn client(&self) -> &(dyn crate::traits::Client + '_) {
+        &*self.client
     }
 
     /// Returns an [`AdminPortal`] instance.
@@ -115,17 +120,29 @@ impl<'a> WorkOsBuilder<'a> {
         self
     }
 
+    #[cfg(feature = "reqwest")]
     /// Consumes the builder and returns the constructed client.
-    pub fn build(self) -> WorkOs {
+    pub fn build(self) -> WorkOs<'static> {
         let client = reqwest::Client::builder()
             .user_agent(concat!("workos-rust/", env!("CARGO_PKG_VERSION")))
             .build()
             .unwrap();
 
+        self.build_with_client(Arc::new(client))
+    }
+
+    /// Consumes the builder and returns the constructed client.
+    pub fn build_with_client<'b>(self, client: Arc<dyn Client + Send + Sync + 'b>) -> WorkOs<'b> {
+        // let client = reqwest::Client::builder()
+        //     .user_agent(concat!("workos-rust/", env!("CARGO_PKG_VERSION")))
+        //     .build()
+        //     .unwrap();
+
         WorkOs {
             base_url: self.base_url,
             key: self.key.to_owned(),
             client,
+            phantom: PhantomData,
         }
     }
 }

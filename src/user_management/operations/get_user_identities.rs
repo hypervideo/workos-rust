@@ -63,7 +63,7 @@ impl GetUserIdentities for UserManagement<'_> {
             .send()
             .await?
             .handle_unauthorized_or_generic_error()?
-            .json::<Vec<Identity>>()
+            .json::<Vec<Identity>, _>()
             .await?;
 
         Ok(users)

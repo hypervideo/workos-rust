@@ -1,8 +1,9 @@
 use async_trait::async_trait;
-use reqwest::{Response, StatusCode};
+use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+use crate::traits::ClientResponse;
 use crate::user_management::{PasswordResetToken, User, UserManagement};
 use crate::{ResponseExt, WorkOsError, WorkOsResult};
 
@@ -85,13 +86,13 @@ where
 }
 
 #[async_trait]
-impl HandleResetPasswordError for Response {
+impl<'a> HandleResetPasswordError for Box<dyn ClientResponse + 'a> {
     async fn handle_reset_password_error(self) -> WorkOsResult<Self, ResetPasswordError> {
         match self.error_for_status_ref() {
             Ok(_) => Ok(self),
             Err(err) => match err.status() {
                 Some(StatusCode::BAD_REQUEST) | Some(StatusCode::NOT_FOUND) => {
-                    let error = self.json::<ResetPasswordError>().await?;
+                    let error = self.json::<ResetPasswordError, _>().await?;
 
                     Err(WorkOsError::Operation(error))
                 }
@@ -156,7 +157,7 @@ impl ResetPassword for UserManagement<'_> {
             .handle_unauthorized_error()?
             .handle_reset_password_error()
             .await?
-            .json::<ResetPasswordResponse>()
+            .json::<ResetPasswordResponse, _>()
             .await?;
 
         Ok(response)

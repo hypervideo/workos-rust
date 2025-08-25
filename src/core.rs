@@ -1,5 +1,7 @@
 mod error;
 mod response;
+///Traits for requests and other core infrastructure
+pub mod traits;
 mod types;
 
 pub use error::*;
