@@ -19,7 +19,7 @@ impl From<Vec<EventName>> for EventFilters {
 }
 
 /// Parameters for the [`ListEvents`] function.
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Serialize)]
 pub struct ListEventsParams<'a> {
     /// The pagination parameters to use when listing events.
     #[serde(flatten)]
@@ -27,7 +27,7 @@ pub struct ListEventsParams<'a> {
 
     /// Filter to only return events of particular types.
     #[serde(rename = "events[]")]
-    pub events: Option<EventFilters>,
+    pub events: EventFilters,
 
     /// Filter to only return events belonging only to specific Organizations
     ///
@@ -73,8 +73,11 @@ pub trait ListEvents {
     /// let paginated_events = workos
     ///     .events()
     ///     .list_events(&ListEventsParams {
-    ///         events: Some(vec![EventName::DsyncUserCreated, EventName::DsyncUserUpdated, EventName::DsyncUserDeleted].into()),
-    ///         ..Default::default()
+    ///         pagination: Default::default(),
+    ///         events: vec![EventName::DsyncUserCreated, EventName::DsyncUserUpdated, EventName::DsyncUserDeleted].into(),
+    ///         organization_id: None,
+    ///         range_start: None,
+    ///         range_end: None,
     ///     })
     ///     .await?;
     /// # Ok(())
@@ -122,92 +125,6 @@ mod test {
 
     #[tokio::test]
     async fn it_calls_the_list_events_endpoint() {
-        let mut server = mockito::Server::new_async().await;
-
-        let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
-            .base_url(&server.url())
-            .unwrap()
-            .build();
-
-        server
-            .mock("GET", "/events")
-            .match_query(Matcher::UrlEncoded("order".to_string(), "desc".to_string()))
-            .match_header("Authorization", "Bearer sk_example_123456789")
-            .with_status(200)
-            .with_body(
-                json!({
-                    "object": "list",
-                    "data": [
-                        {
-                        "object": "event",
-                        "id": "event_01H2GNQD5D7ZE06FDDS75NFPHY",
-                        "event": "dsync.group.user_added",
-                        "data": {
-                            "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-                            "user": {
-                                "id": "directory_user_01E1X56GH84T3FB41SD6PZGDBX",
-                                "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-                                "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
-                                "idp_id": "2936",
-                                "emails": [
-                                    {
-                                        "primary": true,
-                                        "type": "work",
-                                        "value": "eric@example.com"
-                                    }
-                                ],
-                                "first_name": "Eric",
-                                "last_name": "Schneider",
-                                "email": "eric@example.com",
-                                "state": "active",
-                                "created_at": "2021-06-25T19:07:33.155Z",
-                                "updated_at": "2021-06-25T19:07:33.155Z",
-                                "custom_attributes": {
-                                    "department": "Engineering",
-                                    "job_title": "Software Engineer"
-                                },
-                                "role": {
-                                    "slug": "member"
-                                },
-                                "raw_attributes": {}
-                            },
-                            "group": {
-                                "id": "directory_group_01E1X5GPMMXF4T1DCERMVEEPVW",
-                                "idp_id": "02grqrue4294w24",
-                                "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
-                                "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
-                                "name": "Developers",
-                                "created_at": "2021-06-25T19:07:33.155Z",
-                                "updated_at": "2021-06-25T19:07:33.155Z",
-                                "raw_attributes": {}
-                            }
-                        },
-                        "created_at": "2023-06-09T18:12:01.837Z"
-                        }
-                    ],
-                    "list_metadata": {
-                        "after": "event_01H2GQNMQNH8VRXVR7AEYG9XCJ"
-                    }
-                })
-                .to_string(),
-            )
-            .create_async()
-            .await;
-
-        let paginated_list = workos
-            .events()
-            .list_events(&Default::default())
-            .await
-            .unwrap();
-
-        assert_eq!(
-            paginated_list.metadata.after,
-            Some("event_01H2GQNMQNH8VRXVR7AEYG9XCJ".to_string())
-        )
-    }
-
-    #[tokio::test]
-    async fn it_calls_the_list_events_endpoint_with_the_domain() {
         let mut server = mockito::Server::new_async().await;
 
         let workos = WorkOs::builder(&ApiKey::from("sk_example_123456789"))
@@ -289,15 +206,16 @@ mod test {
         let paginated_list = workos
             .events()
             .list_events(&ListEventsParams {
-                events: Some(
-                    vec![
-                        EventName::DsyncUserCreated,
-                        EventName::DsyncUserUpdated,
-                        EventName::DsyncUserDeleted,
-                    ]
-                    .into(),
-                ),
-                ..Default::default()
+                pagination: Default::default(),
+                events: vec![
+                    EventName::DsyncUserCreated,
+                    EventName::DsyncUserUpdated,
+                    EventName::DsyncUserDeleted,
+                ]
+                .into(),
+                organization_id: None,
+                range_start: None,
+                range_end: None,
             })
             .await
             .unwrap();
