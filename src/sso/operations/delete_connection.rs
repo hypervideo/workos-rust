@@ -70,7 +70,8 @@ impl DeleteConnection for Sso<'_> {
             .bearer_auth(self.workos.key())
             .send()
             .await?
-            .handle_unauthorized_or_generic_error()?;
+            .handle_unauthorized_or_generic_error()
+            .await?;
 
         Ok(())
     }
